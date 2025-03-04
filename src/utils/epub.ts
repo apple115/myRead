@@ -2,7 +2,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 import {
   BaseDirectory,
-  exists,
   mkdir,
   readFile,
   readTextFile,
@@ -57,24 +56,26 @@ async function initAppData() {
   }
 }
 // 读取EPUB的metadata
-async function getEpubMetadate(path:string):Promise<EpubMetaData>{
-  const epub = await invoke<EpubMetaData>("get_epub_meta", {
-    path:path,
+async function getEpubMetadate(epubId: string): Promise<EpubMetaData | null> {
+  const appData = await appDataDir();
+  const path = `${appData}/epub-data/${epubId}.epub`;
+  const epubMeta = await invoke<EpubMetaData>("get_epub_meta", {
+    path: path,
   });
-  return epub;
-};
+  return epubMeta;
+}
 // 生成唯一ID
-async function generateEpubId(file:File): Promise<string> {
-    // 将arrayBuffer转化为uint8Array
-    const arrayBuffer = await file.arrayBuffer();
-    const EpubId = await invoke<string>("generate_unique_id", {
-        fileContent: new Uint8Array(arrayBuffer),
-    });
-    return EpubId;
+async function generateEpubId(file: File): Promise<string> {
+  // 将arrayBuffer转化为uint8Array
+  const arrayBuffer = await file.arrayBuffer();
+  const EpubId = await invoke<string>("generate_unique_id", {
+    fileContent: new Uint8Array(arrayBuffer),
+  });
+  return EpubId;
 }
 
 // 保存EPUB文件到本地
-async function saveEpubData(file:File): Promise<string> {
+async function saveEpubData(file: File): Promise<string> {
   await initAppData();
 
   // 将arrayBuffer转化为uint8Array
@@ -103,10 +104,18 @@ async function loadEpubData(epubId: string): Promise<Uint8Array> {
 }
 
 // 保存EPUB元数据
-async function saveEpubMetaData(epubId:string,meta: EpubMetaData): Promise<void> {
+async function saveEpubMetaData(
+  epubId: string,
+  meta: EpubMetaData | null,
+): Promise<void> {
+  //如果meta为null，则不保存
+  if (meta === null) {
+    return;
+  }
   const filePath = `epub-reader-data/metadata/${epubId}.json`;
   await writeTextFile(filePath, JSON.stringify(meta), {
     baseDir: BaseDirectory.AppData,
+    create: true,
   });
 }
 
@@ -144,6 +153,6 @@ export {
   saveEpubMetaData,
   loadEpubMetaData,
   getAllEpubMetaData,
-  getEpubMetadate
+  getEpubMetadate,
 };
 export type { EpubMetaData };
