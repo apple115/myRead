@@ -1,67 +1,63 @@
 "use client";
-import { useCallback, useState } from "react";
-import { saveEpubData, loadEpubMetaData } from "@/utils/epub";
+import { useEffect, useState } from "react";
+import { ReactReader } from "react-reader";
+import { loadEpubData, loadEpubMetaData } from "@/utils/epub";
+import { BaseDirectory, open, readFile } from "@tauri-apps/plugin-fs";
 
 export default function Home() {
+  const [epubFile, setEpubFile] = useState<Uint8Array | null>(null);
+  const [location, setLocation] = useState<string | null>(null);
   const [epubMeta, setEpubMeta] = useState<{
     title: string;
     author: string;
     description?: string;
   } | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleFileUpload = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+  // 使用已知的 epubId 进行测试
+  const epubId =
+    "4345964574e1dbb72dccfc7863417b9dc3126707f20c3274b954eda53728dbac";
 
-      setLoading(true);
+  useEffect(() => {
+    const loadEpub = async () => {
       try {
-        // 保存EPUB文件并获取唯一ID
-        const uniqueId = await saveEpubData(file);
-        // 加载并显示元数据
-        const meta = await loadEpubMetaData(uniqueId);
+        // 加载 EPUB 文件内容
+        const filePath = `epub-data/${epubId}.epub`;
+        const data = await readFile(filePath, {
+          baseDir: BaseDirectory.AppData,
+        });
+        setEpubFile(data);
+        // // 加载 EPUB 元数据
+        const meta = await loadEpubMetaData(epubId);
         setEpubMeta(meta);
       } catch (error) {
-        console.error("Failed to process EPUB:", error);
-        alert("Failed to process EPUB file");
-      } finally {
-        setLoading(false);
+        console.error("Failed to load EPUB:", error);
+        alert("Failed to load EPUB file");
       }
-    },
-    []
-  );
+    };
+
+    loadEpub();
+  }, [epubId]);
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">EPUB Reader</h1>
-
-      <div className="mb-4">
-        <label className="block mb-2">
-          <span className="sr-only">Choose EPUB file</span>
-          <input
-            type="file"
-            accept=".epub"
-            onChange={handleFileUpload}
-            disabled={loading}
-            className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
-          />
-        </label>
-      </div>
-
-      {loading && <p className="text-gray-500">Loading EPUB file...</p>}
-
       {epubMeta && (
-        <div className="mt-4 p-4 border rounded-lg">
-          <h2 className="text-xl font-semibold">{epubMeta.title}</h2>
-          <p className="text-gray-600 mt-2">Author: {epubMeta.author}</p>
-          {epubMeta.description && (
-            <p className="text-gray-600 mt-2">{epubMeta.description}</p>
+        <div className="mt-4">
+          <div className="p-4 border rounded-lg mb-4">
+            <h2 className="text-xl font-semibold">{epubMeta.title}</h2>
+            <p className="text-gray-600 mt-2">Author: {epubMeta.author}</p>
+            {epubMeta.description && (
+              <p className="text-gray-600 mt-2">{epubMeta.description}</p>
+            )}
+          </div>
+          {epubFile && (
+            <div className="mt-4 h-[80vh] border rounded-lg overflow-hidden">
+              <ReactReader
+                url={epubFile?.buffer}
+                location={location}
+                locationChanged={(loc: string) => setLocation(loc)}
+              />
+            </div>
           )}
         </div>
       )}

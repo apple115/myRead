@@ -20,7 +20,9 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self' 'unsafe-inline' blob: data: customprotocol: asset: http://asset.localhost ipc: http://ipc.localhost"
+      }
     }
   },
   "bundle": {

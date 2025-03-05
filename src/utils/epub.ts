@@ -100,6 +100,8 @@ async function loadEpubData(epubId: string): Promise<Uint8Array> {
   const data = await readFile(filePath, {
     baseDir: BaseDirectory.AppData,
   });
+  // data 是一个 Uint8Array 类型的数据
+  // 如何将 Uint8Array 转换为 file
   return data;
 }
 

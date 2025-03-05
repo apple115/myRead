@@ -5,7 +5,7 @@ import { saveEpubData, getEpubMetadate, saveEpubMetaData } from "@/utils/epub";
 import type { EpubMetaData } from "@/utils/epub";
 
 interface EpubUploaderProps {
-  onUploadSuccess: (meta: EpubMetaData|null) => void;
+  onUploadSuccess: (meta: EpubMetaData | null) => void;
   onUploadError?: (error: Error) => void;
 }
 
