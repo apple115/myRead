@@ -95,13 +95,11 @@ async function saveEpubData(file: File): Promise<string> {
 }
 
 // 加载EPUB文件
-async function loadEpubData(epubId: string): Promise<Uint8Array> {
+async function loadEpubData(epubId: string): Promise<Uint8Array|null> {
   const filePath = `epub-data/${epubId}.epub`;
   const data = await readFile(filePath, {
     baseDir: BaseDirectory.AppData,
   });
-  // data 是一个 Uint8Array 类型的数据
-  // 如何将 Uint8Array 转换为 file
   return data;
 }
 
