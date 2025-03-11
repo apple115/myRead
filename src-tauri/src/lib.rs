@@ -3,6 +3,8 @@ use epub::doc::EpubDoc;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
+mod epub_parser;
+
 #[derive(serde::Serialize)]
 struct EpubMeta {
   title: String,
