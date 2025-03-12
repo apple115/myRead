@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { SelectionList } from "@/components/SelectionList";
+import { AIDialog } from "@/components/AIDialog";
 import { AnnotationMenu } from "@/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/components/EpubReaderContainer";
 import { loadEpubData, loadEpubMetaData } from "@/utils/epub";
+import { callAI } from "@/utils/ai";
 import { BaseDirectory, open, readFile } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents, Book } from "epubjs";
 
@@ -28,6 +30,11 @@ export default function Home() {
     x: number;
     y: number;
   } | null>(null);
+
+  const [selectedText, setSelectedText] = useState<string>("");
+  const [isAIDialogOpen, setAIDialogOpen] = useState(false);
+  const [isAILoading, setAILoading] = useState(false);
+  const [aiResponse, setAIResponse] = useState("");
   // 使用已知的 epubId 进行测试
   const epubId =
     "4345964574e1dbb72dccfc7863417b9dc3126707f20c3274b954eda53728dbac";
@@ -46,16 +53,18 @@ export default function Home() {
             cfiRange,
             {},
             (e: MouseEvent) => {
-              const range=rendition.getRange(cfiRange);
+              const range = rendition.getRange(cfiRange);
               const rects = range.getClientRects();
               console.log("rects", e);
               // 获取阅读器容器的位置
               const readerContainer =
                 document.querySelector(".epub-container")!;
               const rect = readerContainer.getBoundingClientRect();
+              const selectedText = rendition.getRange(cfiRange).toString();
+              setSelectedText(selectedText);
               setMenuPosition({
-                x: rects[0].x+rect.x,
-                y: rects[0].y+rect.y,
+                x: rects[0].x + rect.x,
+                y: rects[0].y + rect.y,
               });
               setShowMenu(true);
             },
@@ -114,13 +123,44 @@ export default function Home() {
           );
         }}
       />
+      {showMenu && (
+        <AnnotationMenu
+          position={menuPosition}
+          onClose={() => setShowMenu(false)}
+          onAskAI={async (text) => {
+            console.log("Text received in parent component:", text);
+            try {
+              if (!text.trim()) {
+                console.warn("Empty text received");
+                alert("请先选择一些文本");
+                return;
+              }
+
+              setAIDialogOpen(true);
+              setAILoading(true);
+              setAIResponse("");
+
+              console.log("Sending to AI:", text);
+              const response = await callAI(`请解释这段话的含义: ${text}`, {
+                APIKEY: process.env.NEXT_PUBLIC_AI_API_KEY,
+                APIURL: process.env.NEXT_PUBLIC_AI_API_URL
+              });
+              console.log("AI response:", response);
+
+              setAIResponse(response.content);
+            } catch (error) {
+              console.error("AI request failed:", error);
+              setAIResponse("AI请求失败，请稍后再试");
+            } finally {
+              setAILoading(false);
+            }
+          }}
+          selectedText={selectedText}
+        />
+      )}
       {epubMeta && (
         <div className="mt-4">
           <EpubMetaInfo meta={epubMeta} />
-          <AnnotationMenu
-            position={menuPosition}
-            onClose={() => setShowMenu(false)}
-          />
           {epubFile && (
             <EpubReaderContainer
               epubFile={epubFile}
@@ -134,6 +174,12 @@ export default function Home() {
           )}
         </div>
       )}
+      <AIDialog
+        isOpen={isAIDialogOpen}
+        isLoading={isAILoading}
+        content={aiResponse}
+        onClose={() => setAIDialogOpen(false)}
+      />
     </div>
   );
 }
