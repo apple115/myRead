@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
+import Link from "next/link";
 import { SelectionList } from "@/components/SelectionList";
 import { AIDialog } from "@/components/AIDialog";
 import { AnnotationMenu } from "@/components/AnnotationMenu";
@@ -112,7 +113,15 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">EPUB Reader</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">EPUB Reader</h1>
+        <Link
+          href="/books"
+          className="text-blue-600 hover:text-blue-800"
+        >
+          查看所有书籍 →
+        </Link>
+      </div>
       <SelectionList
         selections={selections}
         rendition={rendition}
@@ -135,19 +144,16 @@ export default function Home() {
                 alert("请先选择一些文本");
                 return;
               }
-
               setAIDialogOpen(true);
               setAILoading(true);
               setAIResponse("");
 
               console.log("Sending to AI:", text);
-              const response = await callAI(`请解释这段话的含义: ${text}`, {
-                APIKEY: process.env.NEXT_PUBLIC_AI_API_KEY,
-                APIURL: process.env.NEXT_PUBLIC_AI_API_URL
-              });
+              const response = await callAI(`请解释这段话的含义: ${text}`);
               console.log("AI response:", response);
-
-              setAIResponse(response.content);
+              if (response != null){
+                  setAIResponse(response);
+              }
             } catch (error) {
               console.error("AI request failed:", error);
               setAIResponse("AI请求失败，请稍后再试");

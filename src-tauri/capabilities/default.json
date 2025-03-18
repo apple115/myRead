@@ -12,6 +12,16 @@
     "fs:allow-appdata-write-recursive",
     "fs:allow-appdata-read-recursive",
     "fs:allow-temp-read-recursive",
-    "fs:allow-temp-write-recursive"
+    "fs:allow-temp-write-recursive",
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {"url": "https://*.tauri.app" },
+        {"url":"https://api.moonshot.cn"},
+        {"url":"https://api.deepseek.com"}
+      ],
+      "deny": [{ "url": "https://private.tauri.app" }]
+    }
   ]
 }

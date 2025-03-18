@@ -7,6 +7,7 @@ import {
   readTextFile,
   writeFile,
   writeTextFile,
+  readDir,
 } from "@tauri-apps/plugin-fs";
 
 // ${appData}
@@ -27,6 +28,7 @@ import {
 interface EpubMetaData {
   title: string;
   author: string;
+  hash: string;
   description?: string;
 }
 
@@ -64,6 +66,7 @@ async function getEpubMetadate(epubId: string): Promise<EpubMetaData | null> {
   });
   return epubMeta;
 }
+
 // 生成唯一ID
 async function generateEpubId(file: File): Promise<string> {
   // 将arrayBuffer转化为uint8Array
@@ -95,7 +98,7 @@ async function saveEpubData(file: File): Promise<string> {
 }
 
 // 加载EPUB文件
-async function loadEpubData(epubId: string): Promise<Uint8Array|null> {
+async function loadEpubData(epubId: string): Promise<Uint8Array | null> {
   const filePath = `epub-data/${epubId}.epub`;
   const data = await readFile(filePath, {
     baseDir: BaseDirectory.AppData,
@@ -133,13 +136,31 @@ async function loadEpubMetaData(epubId: string): Promise<EpubMetaData | null> {
   }
 }
 
-// 获取所有EPUB文件的元数据
+// 获取所有EPUB文件的元数据 ${appData}/epub-reader-data/metadata/
 async function getAllEpubMetaData(): Promise<EpubMetaData[]> {
   try {
-    // 这里需要实现读取metadata目录下所有文件的功能
-    // 由于Tauri的fs API限制，可能需要使用invoke调用Rust端实现
-    const metas = await invoke<EpubMetaData[]>("get_all_epub_meta");
-    return metas;
+    // 获取metadata目录路径
+    const metadataDir = `epub-reader-data/metadata`;
+
+    // 读取metadata目录下的所有文件
+    const files = await readDir(metadataDir, {
+      baseDir: BaseDirectory.AppData,
+    });
+
+    // 过滤出.json文件
+    const jsonFiles = files.filter((file) => file.name?.endsWith(".json"));
+
+    // 读取每个json文件的内容并解析为EpubMetaData
+    const metadataPromises = jsonFiles.map(async (file) => {
+      const filePath = `${metadataDir}/${file.name}`;
+      const data = await readTextFile(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+      return JSON.parse(data) as EpubMetaData;
+    });
+    // 等待所有元数据读取完成
+    const metadata = await Promise.all(metadataPromises);
+    return metadata;
   } catch (error) {
     console.error("Failed to get all EPUB metadata:", error);
     return [];

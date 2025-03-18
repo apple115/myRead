@@ -21,7 +21,8 @@
     ],
     "security": {
       "csp": {
-        "default-src": "'self' 'unsafe-inline' blob: data: customprotocol: asset: http://asset.localhost ipc: http://ipc.localhost"
+        "default-src": "'self' 'unsafe-inline' blob: data: customprotocol: asset: http://asset.localhost ipc: http://ipc.localhost",
+        "connect-src":"ipc: https://api.moonshot.cn"
       }
     }
   },

@@ -22,3 +22,34 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Mermaid diagram styles */
+.mermaid {
+  font-family: inherit;
+}
+
+.mermaid .node rect {
+  fill: #f3f4f6;
+  stroke: #6b7280;
+  stroke-width: 2px;
+  rx: 4px;
+  ry: 4px;
+}
+
+.mermaid .node text {
+  fill: #111827;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.mermaid .edgePath .path {
+  stroke: #6b7280;
+  stroke-width: 2px;
+}
+
+.mermaid .cluster rect {
+  fill: #e5e7eb;
+  stroke: #6b7280;
+  stroke-width: 2px;
+  rx: 4px;
+  ry: 4px;
+}

@@ -2,8 +2,8 @@
 use epub::doc::EpubDoc;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
-
-mod epub_parser;
+mod ai;
+mod ai_file;
 
 #[derive(serde::Serialize)]
 struct EpubMeta {
@@ -18,6 +18,12 @@ fn generate_unique_id(file_content: Vec<u8>) -> String {
   format!("{:x}", hasher.finalize())
 }
 
+// #[tauri::command]
+// async fn ask_ai(prompt: String) -> Result<String, String> {
+//   let ai_service = ai::AIService::new();
+//   ai_service.ask(prompt).await.map_err(|e| e.message)
+// }
+
 #[tauri::command]
 fn get_epub_meta(path: PathBuf) -> Result<EpubMeta, String> {
   let doc = EpubDoc::new(&path).map_err(|e| e.to_string())?;
@@ -31,9 +37,10 @@ fn get_epub_meta(path: PathBuf) -> Result<EpubMeta, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_opener::init())
-    .invoke_handler(tauri::generate_handler![get_epub_meta, generate_unique_id])
+    .invoke_handler(tauri::generate_handler![get_epub_meta, generate_unique_id,])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
