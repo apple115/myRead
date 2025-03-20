@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { EpubMetaData } from "@/utils/epub";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 interface BookCardProps {
   book: EpubMetaData;
@@ -21,6 +21,20 @@ export default function BookCard({
     setMenuPosition({ x: e.clientX, y: e.clientY });
     setMenuOpen(true);
   };
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setMenuOpen(false);
+    };
+
+    if (menuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [menuOpen]);
 
   const handleGenerateMindMap = async () => {
     try {
@@ -75,19 +89,24 @@ export default function BookCard({
 
       {menuOpen && (
         <div
-          className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg"
-          style={{
-            top: menuPosition.y,
-            left: menuPosition.x,
-          }}
+          className="fixed inset-0 bg-black/20 z-100"
+          onClick={() => setMenuOpen(false)}
         >
-          <button
-            onClick={handleGenerateMindMap}
-            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-            disabled={isGeneratingMindMap}
+          <div
+            className="absolute z-50 bg-white border border-gray-200 rounded-lg shadow-lg"
+            style={{
+              top: menuPosition.y,
+              left: menuPosition.x,
+            }}
           >
-            {isGeneratingMindMap ? "思维导图正在生成..." : "生成思维导图"}
-          </button>
+            <button
+              onClick={handleGenerateMindMap}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              disabled={isGeneratingMindMap}
+            >
+              {isGeneratingMindMap ? "思维导图正在生成..." : "生成思维导图"}
+            </button>
+          </div>
         </div>
       )}
     </div>
