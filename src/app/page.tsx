@@ -14,6 +14,7 @@ import { type Rendition, type Contents, Book } from "epubjs";
 type ITextSelection = {
   text: string | null;
   cfiRange: string;
+  createdAt: Date;
 };
 
 export default function Home() {
@@ -33,6 +34,7 @@ export default function Home() {
   } | null>(null);
 
   const [selectedText, setSelectedText] = useState<string>("");
+  const [showDrawer, setShowDrawer] = useState(false);
   const [isAIDialogOpen, setAIDialogOpen] = useState(false);
   const [isAILoading, setAILoading] = useState(false);
   const [aiResponse, setAIResponse] = useState("");
@@ -48,6 +50,7 @@ export default function Home() {
             list.concat({
               text: rendition.getRange(cfiRange).toString(),
               cfiRange,
+              createdAt: new Date(),
             }),
           );
           rendition.annotations.highlight(
@@ -112,26 +115,41 @@ export default function Home() {
   }, [epubId]);
 
   return (
-    <div className="p-4">
+    <div className="p-4 relative">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">EPUB Reader</h1>
-        <Link
-          href="/books"
-          className="text-blue-600 hover:text-blue-800"
-        >
-          查看所有书籍 →
-        </Link>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowDrawer(!showDrawer)}
+            className="p-2 bg-gray-100 rounded hover:bg-gray-200"
+          >
+            {showDrawer ? "隐藏批注" : "显示批注"}
+          </button>
+          <Link href="/books" className="text-blue-600 hover:text-blue-800">
+            查看所有书籍 →
+          </Link>
+        </div>
       </div>
-      <SelectionList
-        selections={selections}
-        rendition={rendition}
-        onRemove={(cfiRange) => {
-          rendition?.annotations.remove(cfiRange, "highlight");
-          setSelections(
-            selections.filter((item) => item.cfiRange !== cfiRange),
-          );
-        }}
-      />
+
+      {/* Drawer for annotations */}
+      <div
+        className={`fixed top-0 left-0 h-full w-96 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+          showDrawer ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="p-4 h-full overflow-y-auto">
+          <SelectionList
+            selections={selections}
+            rendition={rendition}
+            onRemove={(cfiRange) => {
+              rendition?.annotations.remove(cfiRange, "highlight");
+              setSelections(
+                selections.filter((item) => item.cfiRange !== cfiRange),
+              );
+            }}
+          />
+        </div>
+      </div>
       {showMenu && (
         <AnnotationMenu
           position={menuPosition}
@@ -151,8 +169,8 @@ export default function Home() {
               console.log("Sending to AI:", text);
               const response = await callAI(`请解释这段话的含义: ${text}`);
               console.log("AI response:", response);
-              if (response != null){
-                  setAIResponse(response);
+              if (response != null) {
+                setAIResponse(response.content);
               }
             } catch (error) {
               console.error("AI request failed:", error);
