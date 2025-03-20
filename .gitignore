@@ -39,3 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 .aider*
 .env
+/.MyRead-tabspaces-session.el

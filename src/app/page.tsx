@@ -10,12 +10,7 @@ import { loadEpubData, loadEpubMetaData } from "@/utils/epub";
 import { callAI } from "@/utils/ai";
 import { BaseDirectory, open, readFile } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents, Book } from "epubjs";
-
-type ITextSelection = {
-  text: string | null;
-  cfiRange: string;
-  createdAt: Date;
-};
+import type { ITextSelection } from "@/types/annotation";
 
 export default function Home() {
   const [epubFile, setEpubFile] = useState<Uint8Array | null>(null);
@@ -34,6 +29,7 @@ export default function Home() {
   } | null>(null);
 
   const [selectedText, setSelectedText] = useState<string>("");
+  const [selection, setSelection] = useState<ITextSelection | null>(null);
   const [showDrawer, setShowDrawer] = useState(false);
   const [isAIDialogOpen, setAIDialogOpen] = useState(false);
   const [isAILoading, setAILoading] = useState(false);
@@ -42,46 +38,54 @@ export default function Home() {
   const epubId =
     "4345964574e1dbb72dccfc7863417b9dc3126707f20c3274b954eda53728dbac";
 
+  /**
+   * 处理高亮区域的点击事件
+   * @param cfiRange - 当前高亮区域的CFI标识
+   * @param rendition - 当前阅读器实例
+   */
+  function handleHighlightClick(
+    selection: ITextSelection,
+    rendition: Rendition,
+  ) {
+    if (rendition) {
+      // 获取高亮区域的DOM范围
+      const range = rendition.getRange(selection.cfiRange);
+      const rects = range.getClientRects();
+
+      // 获取阅读器容器的位置信息
+      const readerContainer = document.querySelector(".epub-container")!;
+      const rect = readerContainer.getBoundingClientRect();
+
+      setSelection(selection);
+
+      // 计算并设置菜单显示位置
+      setMenuPosition({
+        x: rects[0].x + rect.x, // 水平位置 = 高亮区域x坐标 + 容器偏移量
+        y: rects[0].y + rect.y, // 垂直位置 = 高亮区域y坐标 + 容器偏移量
+      });
+      setShowMenu(true);
+    }
+  }
+
   useEffect(() => {
     if (rendition) {
+      /**
+       * 处理文本选择事件
+       * @param cfiRange - 当前选中区域的CFI标识
+       * @param contents - 当前章节内容实例
+       */
       function showHelloworld(cfiRange: string, contents: Contents) {
         if (rendition) {
-          setSelections((list) =>
-            list.concat({
-              text: rendition.getRange(cfiRange).toString(),
-              cfiRange,
-              createdAt: new Date(),
-            }),
-          );
-          rendition.annotations.highlight(
+          // 创建初始选择
+          const select: ITextSelection = {
+            text: rendition.getRange(cfiRange).toString(),
             cfiRange,
-            {},
-            (e: MouseEvent) => {
-              const range = rendition.getRange(cfiRange);
-              const rects = range.getClientRects();
-              console.log("rects", e);
-              // 获取阅读器容器的位置
-              const readerContainer =
-                document.querySelector(".epub-container")!;
-              const rect = readerContainer.getBoundingClientRect();
-              const selectedText = rendition.getRange(cfiRange).toString();
-              setSelectedText(selectedText);
-              setMenuPosition({
-                x: rects[0].x + rect.x,
-                y: rects[0].y + rect.y,
-              });
-              setShowMenu(true);
-            },
-            "my-class",
-            {
-              // 添加必要的样式保证元素可交互
-              style: () => ({
-                "pointer-events": "all", // 关键：允许鼠标事件
-                cursor: "pointer",
-                "background-color": "rgba(255,0,0,0.3)",
-              }),
-            },
-          );
+            createdAt: new Date(),
+            type:"highlight"
+          };
+          // 显示菜单
+          handleHighlightClick(select, rendition);
+          // 清除当前文本选择
           const selection = contents.window.getSelection();
           selection?.removeAllRanges();
         }
@@ -92,7 +96,7 @@ export default function Home() {
         rendition?.off("selected", showHelloworld);
       };
     }
-  }, [setSelections, rendition]);
+  }, [rendition]);
 
   useEffect(() => {
     const loadEpub = async () => {
@@ -165,7 +169,6 @@ export default function Home() {
               setAIDialogOpen(true);
               setAILoading(true);
               setAIResponse("");
-
               console.log("Sending to AI:", text);
               const response = await callAI(`请解释这段话的含义: ${text}`);
               console.log("AI response:", response);
@@ -179,7 +182,12 @@ export default function Home() {
               setAILoading(false);
             }
           }}
-          selectedText={selectedText}
+          selection={selection!}
+          rendition={rendition}
+          onAddAnnotation={(annotation) => {
+            setSelections((list) => list.concat(annotation));
+          }}
+          handlehighlightClick={handleHighlightClick}
         />
       )}
       {epubMeta && (
