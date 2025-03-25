@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { EpubMetaData } from "@/utils/epub";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 
 interface BookCardProps {
   book: EpubMetaData;
@@ -28,11 +28,11 @@ export default function BookCard({
     };
 
     if (menuOpen) {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [menuOpen]);
 
@@ -52,7 +52,7 @@ export default function BookCard({
       onClick={() => setMenuOpen(false)}
     >
       <Link
-        href={`/reader?book=${encodeURIComponent(book.hash)}`}
+        href={`/reader?bookId=${encodeURIComponent(book.hash)}`}
         className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow block"
       >
         <div className="aspect-[2/3] bg-gray-100 relative">

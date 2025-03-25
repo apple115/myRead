@@ -1,5 +1,6 @@
 "use client";
 import BookCard from "@/components/BookCard";
+import Link from "next/link";
 import { EpubUploader } from "@/components/EpubUploader";
 import { useEffect, useState } from "react";
 import { getAllEpubMetaData, EpubMetaData, loadEpubData } from "@/utils/epub";
@@ -136,12 +137,11 @@ export default function BooksPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {books.length > 0 ? (
               books.map((book) => (
-                <BookCard
-                  key={book.hash}
-                  book={book}
-                  onGenerateMindMap={handleGenerateMindMap}
-                  isGeneratingMindMap={loading.mindMap}
-                />
+                  <BookCard
+                    book={book}
+                    onGenerateMindMap={handleGenerateMindMap}
+                    isGeneratingMindMap={loading.mindMap}
+                  />
               ))
             ) : (
               <div className="col-span-full text-center text-gray-500 py-8">
@@ -151,7 +151,7 @@ export default function BooksPage() {
           </div>
         </>
       )}
-      {mindMapState.visible &&(
+      {mindMapState.visible && (
         <MindMapModal
           content={mindMapState.content}
           isLoading={loading.mindMap}

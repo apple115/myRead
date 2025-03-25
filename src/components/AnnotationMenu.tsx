@@ -9,8 +9,6 @@ interface AnnotationMenuProps {
   selection: ITextSelection;
   rendition: Rendition | null;
   onAddAnnotation: (annotation: ITextSelection) => void;
-  // 鼠标事件接口
-  //(e: MouseEvent) => handleHighlightClick(select, rendition),
   handlehighlightClick: (select: ITextSelection, rendition: Rendition) => void;
 }
 
@@ -117,7 +115,7 @@ export function AnnotationMenu({
               (e: MouseEvent) => {
                 handlehighlightClick(selection, rendition);
               },
-              "strike",
+              "underline",
               {
                 "text-decoration": "line-through",
                 "text-decoration-color": "rgba(255, 0, 0, 0.6)",
