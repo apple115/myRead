@@ -8,6 +8,7 @@ import {
   writeFile,
   writeTextFile,
   readDir,
+  remove,
 } from "@tauri-apps/plugin-fs";
 
 // ${appData}
@@ -167,6 +168,32 @@ async function getAllEpubMetaData(): Promise<EpubMetaData[]> {
   }
 }
 
+// 删除EPUB文件数据
+async function deleteEpubData(epubId: string): Promise<void> {
+  try {
+    const filePath = `epub-data/${epubId}.epub`;
+    await remove(filePath, {
+      baseDir: BaseDirectory.AppData,
+    });
+  } catch (error) {
+    console.error("Failed to delete EPUB data:", error);
+    throw error;
+  }
+}
+
+// 删除EPUB元数据
+async function deleteEpubMetaData(epubId: string): Promise<void> {
+  try {
+    const filePath = `epub-reader-data/metadata/${epubId}.json`;
+    await remove(filePath, {
+      baseDir: BaseDirectory.AppData,
+    });
+  } catch (error) {
+    console.error("Failed to delete EPUB metadata:", error);
+    throw error;
+  }
+}
+
 export {
   initAppData,
   saveEpubData,
@@ -175,5 +202,8 @@ export {
   loadEpubMetaData,
   getAllEpubMetaData,
   getEpubMetadate,
+  deleteEpubData,
+  deleteEpubMetaData,
 };
+
 export type { EpubMetaData };

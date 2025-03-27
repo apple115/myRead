@@ -3,7 +3,7 @@ import BookCard from "@/components/BookCard";
 import Link from "next/link";
 import { EpubUploader } from "@/components/EpubUploader";
 import { useEffect, useState } from "react";
-import { getAllEpubMetaData, EpubMetaData, loadEpubData } from "@/utils/epub";
+import { getAllEpubMetaData, EpubMetaData, loadEpubData, deleteEpubData, deleteEpubMetaData } from "@/utils/epub";
 import { askAIWithFile, type AIResponse } from "@/utils/ai";
 import { MindMapModal } from "@/components/MindMapModal";
 
@@ -91,6 +91,17 @@ export default function BooksPage() {
     return extractMermaidCode(response.content);
   };
 
+  const handleDeleteBook = async (bookId: string) => {
+    try {
+      await deleteEpubData(bookId);
+      await deleteEpubMetaData(bookId);
+      setBooks(prevBooks => prevBooks.filter(book => book.hash !== bookId));
+    } catch (error) {
+      console.error("Failed to delete book:", error);
+      throw error;
+    }
+  };
+
   const handleGenerateMindMap = async (bookId: string) => {
     setLoading((prev) => ({ ...prev, mindMap: true }));
     setErrors((prev) => ({ ...prev, mindMap: null }));
@@ -141,6 +152,7 @@ export default function BooksPage() {
                     book={book}
                     onGenerateMindMap={handleGenerateMindMap}
                     isGeneratingMindMap={loading.mindMap}
+                    onDelete={handleDeleteBook}
                   />
               ))
             ) : (

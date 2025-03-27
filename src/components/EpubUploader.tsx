@@ -116,28 +116,42 @@ export function EpubUploader({
   };
 
   return (
-    <div
-      className="w-full"
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      <div className="flex gap-2">
-        <div
-          onClick={handleClick}
-          className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer transition-all ${
-            loading
-              ? "opacity-50 pointer-events-none"
-              : isDragging
-                ? "bg-blue-50 border-blue-500"
-                : "hover:bg-gray-50"
-          } ${className}`}
-        >
-          <div className="text-center">
+    <div className="flex gap-2">
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        } ${className}`}
+      >
+        {loading ? (
+          <>
             <svg
-              className={`mx-auto h-12 w-12 ${
-                isDragging ? "text-blue-500" : "text-gray-400"
-              } transition-colors`}
+              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            上传中 ({progress}%)
+          </>
+        ) : (
+          <>
+            <svg
+              className="-ml-1 mr-2 h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -149,42 +163,31 @@ export function EpubUploader({
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
-            <div className="mt-4 text-sm text-gray-600">
-              <p className="font-semibold">点击上传或拖放EPUB文件</p>
-              <p className="text-xs text-gray-500 mt-1">
-                支持 .epub 文件，最大50MB
-              </p>
-            </div>
-          </div>
-          {loading && (
-            <div className="w-full mt-4">
-              <div className="bg-gray-200 rounded-full h-2.5">
-                <div
-                  className="bg-blue-600 h-2.5 rounded-full transition-all"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                上传中... {progress}%
-              </p>
-            </div>
-          )}
-        </div>
-        <Toast.Provider>
-          <Toast.Root
-            open={toastOpen}
-            onOpenChange={setToastOpen}
-            className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
-              toastType === "success"
-                ? "bg-green-100 text-green-900"
-                : "bg-red-100 text-red-900"
-            }`}
-          >
-            <Toast.Title className="font-medium">{toastMessage}</Toast.Title>
-          </Toast.Root>
-          <Toast.Viewport className="fixed bottom-0 right-0 p-4" />
-        </Toast.Provider>
-      </div>
+            上传EPUB
+          </>
+        )}
+      </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".epub"
+        className="hidden"
+      />
+      <Toast.Provider>
+        <Toast.Root
+          open={toastOpen}
+          onOpenChange={setToastOpen}
+          className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg ${
+            toastType === "success"
+              ? "bg-green-100 text-green-900"
+              : "bg-red-100 text-red-900"
+          }`}
+        >
+          <Toast.Title className="font-medium">{toastMessage}</Toast.Title>
+        </Toast.Root>
+        <Toast.Viewport className="fixed bottom-0 right-0 p-4" />
+      </Toast.Provider>
     </div>
   );
 }

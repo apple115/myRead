@@ -6,12 +6,14 @@ interface BookCardProps {
   book: EpubMetaData;
   onGenerateMindMap: (bookId: string) => void;
   isGeneratingMindMap: boolean;
+  onDelete: (bookId: string) => Promise<void>;
 }
 
 export default function BookCard({
   book,
   onGenerateMindMap,
   isGeneratingMindMap,
+  onDelete
 }: BookCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -105,6 +107,15 @@ export default function BookCard({
               disabled={isGeneratingMindMap}
             >
               {isGeneratingMindMap ? "思维导图正在生成..." : "生成思维导图"}
+            </button>
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                onDelete(book.hash);
+              }}
+              className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
+            >
+              删除书籍
             </button>
           </div>
         </div>
