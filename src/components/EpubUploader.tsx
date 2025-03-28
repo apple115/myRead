@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useState, useRef } from "react";
-import { saveEpubData, getEpubMetadate, saveEpubMetaData } from "@/utils/epub";
+import { saveEpubData, getEpubMetadate, saveEpubMetaData, saveEpubImage } from "@/utils/epub";
 import { Toast } from "radix-ui";
 import type { EpubMetaData } from "@/utils/epub";
 
@@ -65,6 +65,7 @@ export function EpubUploader({
         if (meta) {
           meta.hash = epubId;
           await saveEpubMetaData(epubId, meta);
+          await saveEpubImage(epubId);
           onUploadSuccess(meta);
           setToastMessage(`${meta.title} 上传成功`);
           setToastType("success");

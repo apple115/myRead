@@ -9,7 +9,9 @@ import {
   writeTextFile,
   readDir,
   remove,
+  exists,
 } from "@tauri-apps/plugin-fs";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 // ${appData}
 // ├── epub-reader-data/
@@ -31,6 +33,11 @@ interface EpubMetaData {
   author: string;
   hash: string;
   description?: string;
+}
+
+interface ImgFile {
+  data: Uint8Array;
+  mime: string;
 }
 
 // 初始化应用数据目录结构
@@ -194,6 +201,68 @@ async function deleteEpubMetaData(epubId: string): Promise<void> {
   }
 }
 
+// MIME 类型到文件扩展名的映射
+const MIME_TO_EXT: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/svg+xml": "svg",
+};
+
+// 默认扩展名（当无法识别 MIME 类型时使用）
+const DEFAULT_EXT = "jpg";
+
+async function saveEpubImage(epubId: string): Promise<void> {
+  try {
+    const appData = await appDataDir();
+    const path = `${appData}/epub-data/${epubId}.epub`;
+    const epubImg = await invoke<ImgFile>("get_img", {
+      path: path,
+    });
+    console.log("epubImg:",epubImg)
+    const ext = MIME_TO_EXT[epubImg.mime.toLowerCase()] || DEFAULT_EXT;
+    const filePath = `epub-reader-data/covers/${epubId}.${ext}`;
+    await writeFile(filePath, new Uint8Array(epubImg.data), {
+      baseDir: BaseDirectory.AppData,
+      create: true,
+    });
+  } catch (error) {
+    console.error("Failed to SaveEpubImage", error);
+    throw error;
+  }
+}
+
+//返回这个Image的路径
+async function getEpubImage(epubId: string): Promise<string> {
+  try {
+    const appData = await appDataDir();
+    const possibleExtensions = [
+      ...new Set([
+        ...Object.values(MIME_TO_EXT),
+        DEFAULT_EXT,
+        "png",
+        "jpg",
+        "jpeg", // 常见扩展名兜底
+      ]),
+    ];
+
+    for (const ext of possibleExtensions) {
+      const filePath = `epub-reader-data/covers/${epubId}.${ext}`;
+      const fullPath = `${appData}/${filePath}`;
+
+      if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+        // 4. 转换为可访问的 URL
+        return convertFileSrc(fullPath);
+      }
+    }
+    return "/default-book-cover.svg"; // 准备一个默认封面路径
+  } catch (error) {
+    console.error("Failed to get EPUB image:", error);
+    return "/default-book-cover.svg";
+  }
+}
+
 export {
   initAppData,
   saveEpubData,
@@ -204,6 +273,8 @@ export {
   getEpubMetadate,
   deleteEpubData,
   deleteEpubMetaData,
+  saveEpubImage,
+  getEpubImage,
 };
 
 export type { EpubMetaData };

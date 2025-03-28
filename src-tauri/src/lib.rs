@@ -10,6 +10,7 @@ struct EpubMeta {
   title: String,
   author: String,
 }
+
 //生成epub文件的独一无二的id
 #[tauri::command]
 fn generate_unique_id(file_content: Vec<u8>) -> String {
@@ -17,12 +18,6 @@ fn generate_unique_id(file_content: Vec<u8>) -> String {
   hasher.update(file_content);
   format!("{:x}", hasher.finalize())
 }
-
-// #[tauri::command]
-// async fn ask_ai(prompt: String) -> Result<String, String> {
-//   let ai_service = ai::AIService::new();
-//   ai_service.ask(prompt).await.map_err(|e| e.message)
-// }
 
 #[tauri::command]
 fn get_epub_meta(path: PathBuf) -> Result<EpubMeta, String> {
@@ -34,13 +29,33 @@ fn get_epub_meta(path: PathBuf) -> Result<EpubMeta, String> {
   Ok(EpubMeta { title, author })
 }
 
+#[derive(serde::Serialize)]
+struct ImgFile {
+  data: Vec<u8>,
+  mime: String,
+}
+
+#[tauri::command]
+fn get_img(path: PathBuf) -> Result<ImgFile, String> {
+  let mut doc = EpubDoc::new(&path).map_err(|e| e.to_string())?;
+  let cover_data = doc.get_cover().unwrap();
+  Ok(ImgFile {
+    data: cover_data.0,
+    mime: cover_data.1,
+  })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_http::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_opener::init())
-    .invoke_handler(tauri::generate_handler![get_epub_meta, generate_unique_id,])
+    .invoke_handler(tauri::generate_handler![
+      get_epub_meta,
+      generate_unique_id,
+      get_img,
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
