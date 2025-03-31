@@ -24,8 +24,20 @@ import { ITextSelection } from "../types/annotation";
 // │   ├── {epub_id}.epub            // EPUB 文件存储
 
 
+// 确保目录存在
+async function ensureAnnotationsDir() {
+  try {
+    await mkdir('epub-reader-data/annotations', {
+      baseDir: BaseDirectory.AppData,
+      recursive: true,
+    });
+  } catch (error) {
+    console.error('创建注释目录失败:', error);
+  }
+}
+
 // 保存注释
-async function saveAnnotations(
+export async function saveAnnotations(
   epubId: string,
   annotations: ITextSelection[]
 ): Promise<void> {
@@ -41,7 +53,8 @@ async function saveAnnotations(
 }
 
 // 加载注释
-async function loadAnnotations(epubId: string): Promise<ITextSelection[]> {
+export async function loadAnnotations(epubId: string): Promise<ITextSelection[]> {
+  await ensureAnnotationsDir();
   try {
     const filePath = `epub-reader-data/annotations/${epubId}.json`;
     const data = await readTextFile(filePath, {

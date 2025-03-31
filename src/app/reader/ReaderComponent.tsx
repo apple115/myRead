@@ -6,6 +6,7 @@ import { AnnotationMenu } from "@/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/components/EpubReaderContainer";
 import { callAI } from "@/utils/ai";
+import { useAnnotations } from "@/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
@@ -56,6 +57,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           cfiRange,
           createdAt: new Date(),
           type: "highlight",
+          styles:{},
         };
         handleTextSelection(newSelection, rendition);
         const selection = contents.window.getSelection();
@@ -88,9 +90,51 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     }
   }, [bookId]);
 
+  const { saveAnnotations, loadAnnotations } = useAnnotations();
+
+  // 加载注释
+  const loadSavedAnnotations = useCallback(async () => {
+    try {
+      const savedAnnotations = await loadAnnotations(bookId);
+      setSelections(savedAnnotations);
+      // 恢复高亮显示
+      if (rendition) {
+        savedAnnotations.forEach(annotation => {
+          rendition.annotations.add(
+            annotation.type,
+            annotation.cfiRange,
+            {},
+            undefined,
+            'hl',
+            { fill: 'yellow', 'fill-opacity': '0.3' }
+          );
+        });
+      }
+    } catch (error) {
+      console.error('加载注释失败:', error);
+    }
+  }, [bookId, rendition, loadAnnotations]);
+
+  // 保存注释到文件
+  const saveCurrentAnnotations = useCallback(async () => {
+    try {
+      await saveAnnotations(bookId, selections);
+    } catch (error) {
+      console.error('保存注释失败:', error);
+    }
+  }, [bookId, selections, saveAnnotations]);
+
+  // 自动保存注释
+  useEffect(() => {
+    if (selections.length > 0) {
+      saveCurrentAnnotations();
+    }
+  }, [selections, saveCurrentAnnotations]);
+
   useEffect(() => {
     loadEpubFile();
-  }, [loadEpubFile]);
+    loadSavedAnnotations();
+  }, [loadEpubFile, loadSavedAnnotations]);
 
   return (
     <div className="p-4 relative">
@@ -103,12 +147,11 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           >
             {showDrawer ? "隐藏批注" : "显示批注"}
           </button>
-          <Link href="/books" className="text-blue-600 hover:text-blue-800">
+          <Link href="/books" className="p-2 text-blue-600 hover:text-blue-800">
             返回书架 →
           </Link>
         </div>
       </div>
-
       <div
         className={`fixed top-0 left-0 h-full w-96 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
           showDrawer ? "translate-x-0" : "-translate-x-full"

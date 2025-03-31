@@ -1,5 +1,4 @@
-import type { ITextSelection } from "@/types/annotation";
-
+import type { ITextSelection} from "@/types/annotation";
 import type { Rendition } from "epubjs";
 
 interface AnnotationMenuProps {
@@ -59,7 +58,16 @@ export function AnnotationMenu({
         </MenuItem>
         <MenuItem
           onClick={() => {
-            onAddAnnotation(selection);
+            const styles = {
+              fill: "rgba(255, 235, 59, 0.3)",
+              "fill-opacity": "0.5",
+              border: "1px solid rgba(255, 152, 0, 0.5)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "highlight",
+              styles: styles,
+            });
             rendition?.annotations.highlight(
               selection.cfiRange,
               {},
@@ -67,27 +75,23 @@ export function AnnotationMenu({
                 handlehighlightClick(selection, rendition);
               },
               "highlight",
-              {
-                style: () => ({
-                  // fill: "rgba(255, 212, 0, 0.4)",
-                  // "fill-opacity": "1",
-                  // "border-radius": "3px",
-                  // "border-bottom": "2px solid rgba(255, 212, 0, 0.6)",
-                  // //添加必要的样式保证元素可交互
-                  "pointer-events": "all", // 关键：允许鼠标事件
-                  cursor: "pointer",
-                  "background-color": "rgba(255,0,0,0.3)",
-                }),
-              },
+              { ...styles, "pointer-events": "all", cursor: "pointer" },
             );
             onClose();
           }}
         >
-          马克笔
+          高亮
         </MenuItem>
         <MenuItem
           onClick={() => {
-            onAddAnnotation(selection);
+            const styles = {
+              "border-bottom": "2px dashed rgba(0, 0, 255, 0.6)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "underline",
+              styles: styles,
+            });
             rendition?.annotations.highlight(
               selection.cfiRange,
               {},
@@ -96,7 +100,7 @@ export function AnnotationMenu({
               },
               "underline",
               {
-                "border-bottom": "2px dashed rgba(0, 0, 255, 0.6)",
+                ...styles,
                 "pointer-events": "all",
                 cursor: "pointer",
               },
@@ -108,7 +112,14 @@ export function AnnotationMenu({
         </MenuItem>
         <MenuItem
           onClick={() => {
-            onAddAnnotation({ ...selection, type: "underline" });
+            const styles = {
+              "border-bottom": "1px dashed rgba(76, 175, 80, 0.8)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "underline",
+              styles: styles,
+            });
             rendition?.annotations.underline(
               selection.cfiRange,
               {},
@@ -117,8 +128,7 @@ export function AnnotationMenu({
               },
               "underline",
               {
-                "text-decoration": "line-through",
-                "text-decoration-color": "rgba(255, 0, 0, 0.6)",
+                ...styles,
                 "pointer-events": "all",
                 cursor: "pointer",
               },
@@ -126,7 +136,7 @@ export function AnnotationMenu({
             onClose();
           }}
         >
-          直线
+          下划线
         </MenuItem>
         <MenuItem
           onClick={() => {
