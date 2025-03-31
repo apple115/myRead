@@ -1,12 +1,12 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { SelectionList } from "@/components/SelectionList";
-import { AIDialog } from "@/components/AIDialog";
-import { AnnotationMenu } from "@/components/AnnotationMenu";
-import { EpubMetaInfo } from "@/components/EpubMetaInfo";
-import { EpubReaderContainer } from "@/components/EpubReaderContainer";
+import { SelectionList } from "@/app/reader/components/SelectionList";
+import { AIDialog } from "@/app/reader/components/AIDialog";
+import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
+import { EpubMetaInfo } from "@/app/reader/components/EpubMetaInfo";
+import { EpubReaderContainer } from "@/app/reader/components/EpubReaderContainer";
 import { callAI } from "@/utils/ai";
-import { useAnnotations } from "@/hooks/useAnnotations";
+import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
@@ -57,7 +57,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           cfiRange,
           createdAt: new Date(),
           type: "highlight",
-          styles:{},
+          styles: {},
         };
         handleTextSelection(newSelection, rendition);
         const selection = contents.window.getSelection();
@@ -99,19 +99,19 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       setSelections(savedAnnotations);
       // 恢复高亮显示
       if (rendition) {
-        savedAnnotations.forEach(annotation => {
+        savedAnnotations.forEach((annotation) => {
           rendition.annotations.add(
             annotation.type,
             annotation.cfiRange,
             {},
             undefined,
-            'hl',
-            { fill: 'yellow', 'fill-opacity': '0.3' }
+            "hl",
+            { fill: "yellow", "fill-opacity": "0.3" },
           );
         });
       }
     } catch (error) {
-      console.error('加载注释失败:', error);
+      console.error("加载注释失败:", error);
     }
   }, [bookId, rendition, loadAnnotations]);
 
@@ -120,7 +120,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     try {
       await saveAnnotations(bookId, selections);
     } catch (error) {
-      console.error('保存注释失败:', error);
+      console.error("保存注释失败:", error);
     }
   }, [bookId, selections, saveAnnotations]);
 

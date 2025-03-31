@@ -1,7 +1,4 @@
 "use client";
-import BookCard from "@/components/BookCard";
-import Link from "next/link";
-import { EpubUploader } from "@/components/EpubUploader";
 import { useEffect, useState } from "react";
 import {
   getAllEpubMetaData,
@@ -12,7 +9,9 @@ import {
   deleteEpubImage,
 } from "@/utils/epub";
 import { askAIWithFile } from "@/utils/ai";
-import { MindMapModal } from "@/components/MindMapModal";
+import BookCard from "@/app/library/components/BookCard";
+import { EpubUploader } from "@/app/library/components/EpubUploader";
+import { MindMapModal } from "@/app/library/components/MindMapModal";
 
 type LoadingState = {
   books: boolean;
@@ -24,7 +23,7 @@ type ErrorState = {
   mindMap: string | null;
 };
 
-export default function BooksPage() {
+export default function LibraryPage() {
   const [books, setBooks] = useState<EpubMetaData[]>([]);
   const [loading, setLoading] = useState<LoadingState>({
     books: true,
