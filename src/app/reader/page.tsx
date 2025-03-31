@@ -2,7 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { loadEpubMetaData } from "@/utils/epub";
-import ReaderComponent from "./ReaderComponent";
+import ReaderComponent from "@/app/reader/components/ReaderComponent";
 
 export default function ReaderPage() {
   const searchParams = useSearchParams();
