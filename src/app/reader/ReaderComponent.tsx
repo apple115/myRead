@@ -1,32 +1,20 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SelectionList } from "@/components/SelectionList";
 import { AIDialog } from "@/components/AIDialog";
 import { AnnotationMenu } from "@/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/components/EpubReaderContainer";
-import { loadEpubData } from "@/utils/epub";
 import { callAI } from "@/utils/ai";
-import { BaseDirectory, exists, readFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
 import Link from "next/link";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
+import { Reader } from "@/types/book";
 
-interface ReaderComponentProps {
-  bookId: string;
-  initialMeta: {
-    title: string;
-    author: string;
-    description?: string;
-  };
-}
-
-export default function ReaderComponent({
-  bookId,
-  initialMeta,
-}: ReaderComponentProps) {
+export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
   const [location, setLocation] = useState<string | null>(null);
   const [rendition, setRendition] = useState<Rendition | null>(null);
@@ -42,63 +30,67 @@ export default function ReaderComponent({
   const [isAILoading, setAILoading] = useState(false);
   const [aiResponse, setAIResponse] = useState("");
 
-  function handleHighlightClick(
-    selection: ITextSelection,
-    rendition: Rendition,
-  ) {
-    if (rendition) {
-      const range = rendition.getRange(selection.cfiRange);
-      const rects = range.getClientRects();
-      const readerContainer = document.querySelector(".epub-container")!;
-      const rect = readerContainer.getBoundingClientRect();
+  const handleTextSelection = useCallback(
+    (selection: ITextSelection, rendition: Rendition) => {
+      if (rendition) {
+        const range = rendition.getRange(selection.cfiRange);
+        const rects = range.getClientRects();
+        const readerContainer = document.querySelector(".epub-container")!;
+        const rect = readerContainer.getBoundingClientRect();
+        setSelection(selection);
+        setMenuPosition({
+          x: rects[0].x + rect.x,
+          y: rects[0].y + rect.y,
+        });
+        setShowMenu(true);
+      }
+    },
+    [],
+  );
 
-      setSelection(selection);
-      setMenuPosition({
-        x: rects[0].x + rect.x,
-        y: rects[0].y + rect.y,
-      });
-      setShowMenu(true);
-    }
-  }
+  const handleSelectionEvent = useCallback(
+    (cfiRange: string, contents: Contents) => {
+      if (rendition) {
+        const newSelection: ITextSelection = {
+          text: rendition.getRange(cfiRange).toString(),
+          cfiRange,
+          createdAt: new Date(),
+          type: "highlight",
+        };
+        handleTextSelection(newSelection, rendition);
+        const selection = contents.window.getSelection();
+        selection?.removeAllRanges();
+      }
+    },
+    [rendition, handleTextSelection],
+  );
 
   useEffect(() => {
     if (rendition) {
-      function showHelloworld(cfiRange: string, contents: Contents) {
-        if (rendition) {
-          const select: ITextSelection = {
-            text: rendition.getRange(cfiRange).toString(),
-            cfiRange,
-            createdAt: new Date(),
-            type: "highlight",
-          };
-          handleHighlightClick(select, rendition);
-          const selection = contents.window.getSelection();
-          selection?.removeAllRanges();
-        }
-      }
-      rendition.on("selected", showHelloworld);
+      rendition.on("selected", handleSelectionEvent);
       return () => {
-        rendition?.off("selected", showHelloworld);
+        rendition?.off("selected", handleSelectionEvent);
       };
     }
-  }, [rendition]);
+  }, [rendition, handleSelectionEvent]);
+
+  const loadEpubFile = useCallback(async () => {
+    try {
+      const appData = await appDataDir();
+      const filePath = `epub-data/${bookId}.epub`;
+      const fullPath = `${appData}/${filePath}`;
+      if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+        setEpubFileUrl(convertFileSrc(fullPath));
+      }
+    } catch (error) {
+      console.error("Failed to convert EPUB to URL", error);
+      alert("Failed to load EPUB file");
+    }
+  }, [bookId]);
 
   useEffect(() => {
-    const loadEpub = async () => {
-      try {
-        const appData = await appDataDir();
-        const filePath = `epub-data/${bookId}.epub`;
-        const fullPath = `${appData}/${filePath}`;
-        if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
-          setEpubFileUrl(convertFileSrc(fullPath));
-        }
-      } catch (error) {
-        console.error("Failed to conver EPUB to url", error);
-        alert("Failed to load EPUB file");
-      }
-    };
-    loadEpub();
-  }, [bookId]);
+    loadEpubFile();
+  }, [loadEpubFile]);
 
   return (
     <div className="p-4 relative">
@@ -163,7 +155,7 @@ export default function ReaderComponent({
           onAddAnnotation={(annotation) => {
             setSelections((list) => list.concat(annotation));
           }}
-          handlehighlightClick={handleHighlightClick}
+          handlehighlightClick={handleTextSelection}
         />
       )}
       <div className="mt-4">
