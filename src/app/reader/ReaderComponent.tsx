@@ -7,10 +7,12 @@ import { EpubMetaInfo } from "@/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/components/EpubReaderContainer";
 import { loadEpubData } from "@/utils/epub";
 import { callAI } from "@/utils/ai";
-import { BaseDirectory, readFile } from "@tauri-apps/plugin-fs";
+import { BaseDirectory, exists, readFile } from "@tauri-apps/plugin-fs";
 import { type Rendition, type Contents } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
 import Link from "next/link";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir } from "@tauri-apps/api/path";
 
 interface ReaderComponentProps {
   bookId: string;
@@ -25,7 +27,7 @@ export default function ReaderComponent({
   bookId,
   initialMeta,
 }: ReaderComponentProps) {
-  const [epubFile, setEpubFile] = useState<Uint8Array | null>(null);
+  const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
   const [location, setLocation] = useState<string | null>(null);
   const [rendition, setRendition] = useState<Rendition | null>(null);
   const [selections, setSelections] = useState<ITextSelection[]>([]);
@@ -84,13 +86,14 @@ export default function ReaderComponent({
   useEffect(() => {
     const loadEpub = async () => {
       try {
+        const appData = await appDataDir();
         const filePath = `epub-data/${bookId}.epub`;
-        const data = await readFile(filePath, {
-          baseDir: BaseDirectory.AppData,
-        });
-        setEpubFile(data);
+        const fullPath = `${appData}/${filePath}`;
+        if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+          setEpubFileUrl(convertFileSrc(fullPath));
+        }
       } catch (error) {
-        console.error("Failed to load EPUB:", error);
+        console.error("Failed to conver EPUB to url", error);
         alert("Failed to load EPUB file");
       }
     };
@@ -165,9 +168,9 @@ export default function ReaderComponent({
       )}
       <div className="mt-4">
         <EpubMetaInfo meta={initialMeta} />
-        {epubFile && (
+        {epubFileUrl && (
           <EpubReaderContainer
-            epubFile={epubFile}
+            epubFileUrl={epubFileUrl}
             location={location}
             onLocationChange={(loc: string) => setLocation(loc)}
             onRenditionChange={(_rendition: Rendition) => {

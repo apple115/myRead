@@ -2,23 +2,22 @@ import { ReactReader } from "react-reader";
 import type { Rendition, Contents } from "epubjs";
 
 interface EpubReaderContainerProps {
-  epubFile: Uint8Array | null;
+  epubFileUrl: string;
   location: string | null;
   onLocationChange: (loc: string) => void;
   onRenditionChange: (rendition: Rendition) => void;
 }
 
 export function EpubReaderContainer({
-  epubFile,
   location,
   onLocationChange,
   onRenditionChange,
+  epubFileUrl
 }: EpubReaderContainerProps) {
   return (
     <div className="mt-4 h-[80vh] border rounded-lg overflow-hidden">
       <ReactReader
-        //@ts-ignore
-        url={epubFile?.buffer}
+        url={epubFileUrl}
         location={location}
         locationChanged={onLocationChange}
         getRendition={onRenditionChange}

@@ -3,8 +3,15 @@ import BookCard from "@/components/BookCard";
 import Link from "next/link";
 import { EpubUploader } from "@/components/EpubUploader";
 import { useEffect, useState } from "react";
-import { getAllEpubMetaData, EpubMetaData, loadEpubData, deleteEpubData, deleteEpubMetaData } from "@/utils/epub";
-import { askAIWithFile, type AIResponse } from "@/utils/ai";
+import {
+  getAllEpubMetaData,
+  EpubMetaData,
+  loadEpubData,
+  deleteEpubData,
+  deleteEpubMetaData,
+  deleteEpubImage,
+} from "@/utils/epub";
+import { askAIWithFile } from "@/utils/ai";
 import { MindMapModal } from "@/components/MindMapModal";
 
 type LoadingState = {
@@ -95,7 +102,8 @@ export default function BooksPage() {
     try {
       await deleteEpubData(bookId);
       await deleteEpubMetaData(bookId);
-      setBooks(prevBooks => prevBooks.filter(book => book.hash !== bookId));
+      await deleteEpubImage(bookId);
+      setBooks((prevBooks) => prevBooks.filter((book) => book.hash !== bookId));
     } catch (error) {
       console.error("Failed to delete book:", error);
       throw error;
@@ -148,12 +156,12 @@ export default function BooksPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {books.length > 0 ? (
               books.map((book) => (
-                  <BookCard
-                    book={book}
-                    onGenerateMindMap={handleGenerateMindMap}
-                    isGeneratingMindMap={loading.mindMap}
-                    onDelete={handleDeleteBook}
-                  />
+                <BookCard
+                  book={book}
+                  onGenerateMindMap={handleGenerateMindMap}
+                  isGeneratingMindMap={loading.mindMap}
+                  onDelete={handleDeleteBook}
+                />
               ))
             ) : (
               <div className="col-span-full text-center text-gray-500 py-8">

@@ -220,7 +220,7 @@ async function saveEpubImage(epubId: string): Promise<void> {
     const epubImg = await invoke<ImgFile>("get_img", {
       path: path,
     });
-    console.log("epubImg:",epubImg)
+    console.log("epubImg:", epubImg);
     const ext = MIME_TO_EXT[epubImg.mime.toLowerCase()] || DEFAULT_EXT;
     const filePath = `epub-reader-data/covers/${epubId}.${ext}`;
     await writeFile(filePath, new Uint8Array(epubImg.data), {
@@ -263,6 +263,35 @@ async function getEpubImage(epubId: string): Promise<string> {
   }
 }
 
+async function deleteEpubImage(epubId: string): Promise<void> {
+  try {
+    // 获取所有可能的扩展名（与 getEpubImage 保持一致）
+    const possibleExtensions = [
+      ...new Set([
+        ...Object.values(MIME_TO_EXT),
+        DEFAULT_EXT,
+        "png",
+        "jpg",
+        "jpeg", // 兜底常见图片扩展名
+      ]),
+    ];
+
+    // 遍历所有可能的扩展名格式
+    for (const ext of possibleExtensions) {
+      const filePath = `epub-reader-data/covers/${epubId}.${ext}`;
+
+      // 检查文件是否存在
+      if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+        // 删除存在的文件
+        await remove(filePath, { baseDir: BaseDirectory.AppData });
+      }
+    }
+  } catch (error) {
+    console.error(`Failed to delete EPUB image for ${epubId}:`, error);
+    throw error; // 保持与 saveEpubImage 一致的错误处理方式
+  }
+}
+
 export {
   initAppData,
   saveEpubData,
@@ -275,6 +304,7 @@ export {
   deleteEpubMetaData,
   saveEpubImage,
   getEpubImage,
+  deleteEpubImage,
 };
 
 export type { EpubMetaData };
