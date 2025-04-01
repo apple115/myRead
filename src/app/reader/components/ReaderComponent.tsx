@@ -147,7 +147,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           >
             {showDrawer ? "隐藏批注" : "显示批注"}
           </button>
-          <Link href="/books" className="p-2 text-blue-600 hover:text-blue-800">
+          <Link href="/library" className="p-2 text-blue-600 hover:text-blue-800">
             返回书架 →
           </Link>
         </div>

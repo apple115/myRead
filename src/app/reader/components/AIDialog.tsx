@@ -25,13 +25,13 @@ export function AIDialog({
             &times;
           </button>
         </div>
-        <div className="min-h-[200px]">
+        <div className="min-h-[200px] max-h-[60vh] overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-pulse">AI正在思考中，请稍候...</div>
             </div>
           ) : (
-            <div className="whitespace-pre-wrap">{content}</div>
+            <div className="whitespace-pre-wrap p-2">{content}</div>
           )}
         </div>
       </div>
