@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SelectionList } from "@/app/reader/components/SelectionList";
 import { AIDialog } from "@/app/reader/components/AIDialog";
 import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
@@ -8,7 +8,7 @@ import { EpubReaderContainer } from "@/app/reader/components/EpubReaderContainer
 import { callAI } from "@/utils/ai";
 import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
-import { type Rendition, type Contents } from "epubjs";
+import { Contents, type Rendition } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
 import Link from "next/link";
 import { convertFileSrc } from "@tauri-apps/api/core";
@@ -30,42 +30,39 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [isAIDialogOpen, setAIDialogOpen] = useState(false);
   const [isAILoading, setAILoading] = useState(false);
   const [aiResponse, setAIResponse] = useState("");
+  const [contents,setContents] = useState<Contents | null>(null);
 
-  const handleTextSelection = useCallback(
-    (selection: ITextSelection, rendition: Rendition) => {
-      if (rendition) {
-        const range = rendition.getRange(selection.cfiRange);
-        const rects = range.getClientRects();
-        const readerContainer = document.querySelector(".epub-container")!;
-        const rect = readerContainer.getBoundingClientRect();
-        setSelection(selection);
-        setMenuPosition({
-          x: rects[0].x + rect.x,
-          y: rects[0].y + rect.y,
-        });
-        setShowMenu(true);
-      }
-    },
-    [],
-  );
+  const handleTextSelection = (
+    newSelection: ITextSelection,
+    rendition: Rendition,
+  ) => {
+    if (rendition) {
+      const range = rendition.getRange(newSelection.cfiRange);
+      const rects = range.getClientRects();
+      const readerContainer = document.querySelector(".epub-container")!;
+      const rect = readerContainer.getBoundingClientRect();
+      setSelection(newSelection);
+      setMenuPosition({
+        x: rects[0].x + rect.x,
+        y: rects[0].y + rect.y,
+      });
+      setShowMenu(true);
+    }
+  };
 
-  const handleSelectionEvent = useCallback(
-    (cfiRange: string, contents: Contents) => {
-      if (rendition) {
-        const newSelection: ITextSelection = {
-          text: rendition.getRange(cfiRange).toString(),
-          cfiRange,
-          createdAt: new Date(),
-          type: "highlight",
-          styles: {},
-        };
-        handleTextSelection(newSelection, rendition);
-        const selection = contents.window.getSelection();
-        selection?.removeAllRanges();
-      }
-    },
-    [rendition, handleTextSelection],
-  );
+  const handleSelectionEvent = (cfiRange: string, contents: Contents) => {
+    if (rendition) {
+      const newSelection: ITextSelection = {
+        text: rendition.getRange(cfiRange).toString(),
+        cfiRange,
+        createdAt: new Date(),
+        type: "highlight",
+        styles: {},
+      };
+      setContents(contents)
+      handleTextSelection(newSelection, rendition);
+    }
+  };
 
   useEffect(() => {
     if (rendition) {
@@ -74,7 +71,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         rendition?.off("selected", handleSelectionEvent);
       };
     }
-  }, [rendition, handleSelectionEvent]);
+  }, [rendition]);
 
   const loadEpubFile = useCallback(async () => {
     try {
@@ -147,7 +144,10 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           >
             {showDrawer ? "隐藏批注" : "显示批注"}
           </button>
-          <Link href="/library" className="p-2 text-blue-600 hover:text-blue-800">
+          <Link
+            href="/library"
+            className="p-2 text-blue-600 hover:text-blue-800"
+          >
             返回书架 →
           </Link>
         </div>
@@ -172,8 +172,14 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       </div>
       {showMenu && (
         <AnnotationMenu
+          contents={contents}
           position={menuPosition}
-          onClose={() => setShowMenu(false)}
+          onClose={() => {
+            setShowMenu(false);
+            const selection = contents?.window.getSelection();
+            selection?.removeAllRanges();
+
+          }}
           onAskAI={async (text) => {
             try {
               if (!text.trim()) {

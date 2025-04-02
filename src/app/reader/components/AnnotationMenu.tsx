@@ -1,7 +1,8 @@
 import type { ITextSelection} from "@/types/annotation";
-import type { Rendition } from "epubjs";
+import type { Rendition,Contents } from "epubjs";
 
 interface AnnotationMenuProps {
+  contents:Contents | null,
   position: { x: number; y: number } | null;
   onClose: () => void;
   onAskAI: (text: string) => void;
@@ -37,6 +38,7 @@ export function AnnotationMenu({
   rendition,
   onAddAnnotation,
   handlehighlightClick,
+  contents,
 }: AnnotationMenuProps) {
   if (!position) return null;
   return (
@@ -124,7 +126,7 @@ export function AnnotationMenu({
               selection.cfiRange,
               {},
               (e: MouseEvent) => {
-                handlehighlightClick(selection, rendition);
+                handlehighlightClick(selection, rendition,contents);
               },
               "underline",
               {
