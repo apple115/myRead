@@ -5,8 +5,6 @@ import {
   writeTextFile,
   remove,
 } from "@tauri-apps/plugin-fs";
-import { ITextSelection } from "../types/annotation";
-
 // ${appData}
 // ├── epub-reader-data/
 // │   ├── metadata/
@@ -16,64 +14,64 @@ import { ITextSelection } from "../types/annotation";
 // │   ├── annotations/
 // │   │   ├── {epub_id}.json        // 批注数据（按 EPUB 文件存储）
 // │   ├── covers/
-// │   │   ├── {epub_id}.png         / 封面图片缓存
+// │   │   ├── {epub_id}.png         // 封面图片缓存
+// │   ├── persist/
+// │   │   ├── {epub_id}.json         // Epub位置,书本设置什么的
 // │   └── preferences.json          / 全局用户偏好设置
 // ├── epub-data/
 // │   ├── {epub_id}.epub            // EPUB 文件存储
 // │   ├── {epub_id}.epub            // EPUB 文件存储
+export interface Persist {
+  location: string | null;
+}
 
-// 确保目录存在
-async function ensureAnnotationsDir() {
+//确保目录存在
+async function ensurePersistDir() {
   try {
-    await mkdir("epub-reader-data/annotations", {
+    await mkdir("epub-reader-data/persist", {
       baseDir: BaseDirectory.AppData,
       recursive: true,
     });
   } catch (error) {
-    console.error("创建注释目录失败:", error);
+    console.error("创建PersistDir失败", error);
   }
 }
 
-// 保存注释
-async function saveAnnotations(
-  epubId: string,
-  annotations: ITextSelection[],
-): Promise<void> {
-  const filePath = `epub-reader-data/annotations/${epubId}.json`;
-  await writeTextFile(filePath, JSON.stringify(annotations), {
+async function savePersist(epubId: string, persist: Persist): Promise<void> {
+  await ensurePersistDir();
+  const filePath = `epub-reader-data/persist/${epubId}.json`;
+  await writeTextFile(filePath, JSON.stringify(persist), {
     baseDir: BaseDirectory.AppData,
     create: true,
   });
 }
 
-// 加载注释
-async function loadAnnotations(
-  epubId: string,
-): Promise<ITextSelection[]> {
-  await ensureAnnotationsDir();
+async function loadPersist(epubId: string): Promise<Persist | null> {
+  await ensurePersistDir();
   try {
-    const filePath = `epub-reader-data/annotations/${epubId}.json`;
+    const filePath = `epub-reader-data/persist/${epubId}.json`;
     const data = await readTextFile(filePath, {
       baseDir: BaseDirectory.AppData,
     });
-    return JSON.parse(data) as ITextSelection[];
+    console.log("epubId:", epubId);
+    console.log("Persist:", data);
+    return JSON.parse(data) as Persist;
   } catch (error) {
-    console.error("Failed to load annotations:", error);
-    return [];
+    console.error("加载Persist失败", error);
+    return null;
   }
 }
 
-// 删除注释文件
-async function deleteAnnotations(epubId: string): Promise<void> {
+async function deletePersist(epubId: string): Promise<void> {
   try {
-    const filePath = `epub-reader-data/annotations/${epubId}.json`;
+    const filePath = `epub-reader-data/persist/${epubId}.json`;
     await remove(filePath, {
       baseDir: BaseDirectory.AppData,
     });
   } catch (error) {
-    console.error("Failed to delete annotations:", error);
+    console.error("删除Persist失败", error);
     throw error;
   }
 }
 
-export { saveAnnotations, loadAnnotations, deleteAnnotations };
+export { savePersist, loadPersist, deletePersist };

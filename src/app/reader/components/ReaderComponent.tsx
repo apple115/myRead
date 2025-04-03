@@ -14,6 +14,8 @@ import Link from "next/link";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 import { Reader } from "@/types/book";
+import { usePersist } from "../hooks/usePersist";
+import { type Persist } from "@/utils/persist";
 
 export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [isAIDialogOpen, setAIDialogOpen] = useState(false);
   const [isAILoading, setAILoading] = useState(false);
   const [aiResponse, setAIResponse] = useState("");
-  const [contents,setContents] = useState<Contents | null>(null);
+  const [contents, setContents] = useState<Contents | null>(null);
 
   const handleTextSelection = (
     newSelection: ITextSelection,
@@ -59,7 +61,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         type: "highlight",
         styles: {},
       };
-      setContents(contents)
+      setContents(contents);
       handleTextSelection(newSelection, rendition);
     }
   };
@@ -81,11 +83,37 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
         setEpubFileUrl(convertFileSrc(fullPath));
       }
+      loadSavedPersist();
     } catch (error) {
       console.error("Failed to convert EPUB to URL", error);
       alert("Failed to load EPUB file");
     }
   }, [bookId]);
+
+  const { savePersist, loadPersist } = usePersist();
+
+  const loadSavedPersist = useCallback(async () => {
+    try {
+      const savedPersist = await loadPersist(bookId);
+      if (savedPersist != null) {
+        setLocation(savedPersist.location);
+      }
+    } catch (error) {
+      console.error("加载Persist失败:", error);
+    }
+  }, [bookId]);
+
+  const saveCurrentPersist = useCallback(async () => {
+    try {
+      const persist: Persist = {
+        location: location,
+      };
+      console.log("saveCurrentPersist:", location);
+      await savePersist(bookId, persist);
+    } catch (error) {
+      console.error("存储Persist失败", error);
+    }
+  }, [location]);
 
   const { saveAnnotations, loadAnnotations } = useAnnotations();
 
@@ -133,11 +161,17 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     loadSavedAnnotations();
   }, [loadEpubFile, loadSavedAnnotations]);
 
+  //FIX: 无法自动保存
+  // useEffect(()=>{
+  //   saveCurrentPersist();
+  // },[location])
+
   return (
     <div className="p-4 relative">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">EPUB Reader</h1>
         <div className="flex gap-4">
+          <button onClick={() => saveCurrentPersist()}>保存</button>
           <button
             onClick={() => setShowDrawer(!showDrawer)}
             className="p-2 bg-gray-100 rounded hover:bg-gray-200"
@@ -178,7 +212,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             setShowMenu(false);
             const selection = contents?.window.getSelection();
             selection?.removeAllRanges();
-
           }}
           onAskAI={async (text) => {
             try {
