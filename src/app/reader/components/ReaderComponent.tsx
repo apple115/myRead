@@ -9,13 +9,14 @@ import { callAI } from "@/utils/ai";
 import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { Contents, type Rendition } from "epubjs";
-import type { ITextSelection } from "@/types/annotation";
+import type { ITextSelection, TextType } from "@/types/annotation";
 import Link from "next/link";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 import { Reader } from "@/types/book";
 import { usePersist } from "../hooks/usePersist";
 import { type Persist } from "@/utils/persist";
+import { NoteInput } from "./NoteInput";
 
 export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [isAILoading, setAILoading] = useState(false);
   const [aiResponse, setAIResponse] = useState("");
   const [contents, setContents] = useState<Contents | null>(null);
+  const [showNoteInput, setShowNoteInput] = useState(false);
 
   const handleTextSelection = (
     newSelection: ITextSelection,
@@ -43,7 +45,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       const rects = range.getClientRects();
       const readerContainer = document.querySelector(".epub-container")!;
       const rect = readerContainer.getBoundingClientRect();
-      setSelection(newSelection);
       setMenuPosition({
         x: rects[0].x + rect.x,
         y: rects[0].y + rect.y,
@@ -62,6 +63,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         styles: {},
       };
       setContents(contents);
+      setSelection(newSelection);
       handleTextSelection(newSelection, rendition);
     }
   };
@@ -238,6 +240,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             setSelections((list) => list.concat(annotation));
           }}
           handlehighlightClick={handleTextSelection}
+          setShowNoteInput={setShowNoteInput}
         />
       )}
       <div className="mt-4">
@@ -259,6 +262,18 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         content={aiResponse}
         onClose={() => setAIDialogOpen(false)}
       />
+      {showNoteInput && selection && (
+        <NoteInput
+          selection={selection}
+          rendition={rendition}
+          initialText={selection.text || ""}
+          onAddAnnotation={(annotation) => {
+            setSelections((list) => list.concat(annotation));
+          }}
+          handlehighlightClick={handleTextSelection}
+          onClose={()=>setShowNoteInput(false)}
+        />
+      )}
     </div>
   );
 }

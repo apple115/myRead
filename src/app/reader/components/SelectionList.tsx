@@ -8,6 +8,7 @@ interface Selection {
   text: string | null;
   cfiRange: string;
   createdAt: Date;
+  note?: string;
 }
 
 interface SelectionListProps {
@@ -37,7 +38,7 @@ export function SelectionList({
 
   return (
     <div className="space-y-2">
-      {selections.map(({ text, cfiRange, createdAt }, i) => (
+      {selections.map(({ text, cfiRange, createdAt, note }, i) => (
         <div
           key={i}
           className="group relative p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -46,6 +47,11 @@ export function SelectionList({
             {formatDistanceToNow(createdAt, { addSuffix: true, locale: zhCN })}
           </div>
           <div className="text-gray-800">{text}</div>
+          {note && (
+            <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-100 text-sm text-blue-800">
+              {note}
+            </div>
+          )}
 
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             {confirmDeleteIndex === i ? (
