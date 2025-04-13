@@ -12,6 +12,7 @@ import { askAIWithFile } from "@/utils/ai";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
 import { MindMapModal } from "@/app/library/components/MindMapModal";
+import Link from "next/link";
 
 type LoadingState = {
   books: boolean;
@@ -135,10 +136,13 @@ export default function LibraryPage() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">我的书架</h1>
         <div className="relative">
+          <div className="flex">
+          <Link className="p-2" href={"/setting"}>设置</Link>
           <EpubUploader
             id="epub-upload"
             onUploadSuccess={handleUploadSuccess}
           />
+          </div>
         </div>
       </div>
       {loading.books ? (

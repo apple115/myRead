@@ -15,7 +15,7 @@ import {
 // │   │   ├── {epub_id}.json        // 批注数据（按 EPUB 文件存储）
 // │   ├── covers/
 // │   │   ├── {epub_id}.png         // 封面图片缓存
-// │   ├── persist/
+// │   ├── persist
 // │   │   ├── {epub_id}.json         // Epub位置,书本设置什么的
 // │   └── preferences.json          / 全局用户偏好设置
 // ├── epub-data/
