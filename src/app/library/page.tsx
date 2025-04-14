@@ -12,6 +12,7 @@ import { askAIWithFile } from "@/utils/ai";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
 import { MindMapModal } from "@/app/library/components/MindMapModal";
+import AiBookDialog from "./components/AiBookDialog";
 import Link from "next/link";
 
 type LoadingState = {
@@ -132,48 +133,56 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="p-4 relative">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">我的书架</h1>
-        <div className="relative">
-          <div className="flex">
-          <Link className="p-2" href={"/setting"}>设置</Link>
-          <EpubUploader
-            id="epub-upload"
-            onUploadSuccess={handleUploadSuccess}
-          />
+    <div>
+      <div className="p-4 relative">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">我的书架</h1>
+          <div className="relative">
+            <div className="flex">
+              <Link
+                className="p-2 text-blue-600 hover:text-blue-800"
+                href={"/setting"}
+              >
+                设置
+              </Link>
+              <EpubUploader
+                id="epub-upload"
+                onUploadSuccess={handleUploadSuccess}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      {loading.books ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      ) : (
-        <>
-          {errors.books && (
-            <div className="col-span-full text-center text-red-500 py-8">
-              {errors.books}
-            </div>
-          )}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {books.length > 0 ? (
-              books.map((book) => (
-                <BookCard
-                  book={book}
-                  onGenerateMindMap={handleGenerateMindMap}
-                  isGeneratingMindMap={loading.mindMap}
-                  onDelete={handleDeleteBook}
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center text-gray-500 py-8">
-                书架空空如也，快去添加书籍吧！
+        {loading.books ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : (
+          <>
+            {errors.books && (
+              <div className="col-span-full text-center text-red-500 py-8">
+                {errors.books}
               </div>
             )}
-          </div>
-        </>
-      )}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {books.length > 0 ? (
+                books.map((book) => (
+                  <BookCard
+                    book={book}
+                    onGenerateMindMap={handleGenerateMindMap}
+                    isGeneratingMindMap={loading.mindMap}
+                    onDelete={handleDeleteBook}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-gray-500 py-8">
+                  书架空空如也，快去添加书籍吧！
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+      {true && <AiBookDialog bookTitle="示例书籍名称" />}
       {mindMapState.visible && (
         <MindMapModal
           content={mindMapState.content}
