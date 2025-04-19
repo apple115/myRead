@@ -1,40 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ApiSetting from "./components/ApiSetting";
 import { AIApiSetting } from "@/types/aiApi";
-import { loadSetting, updateSetting } from "@/utils/setting";
+import {
+  loadSetting,
+  updateSetting,
+  type Setting,
+  type AiApiSettings,
+} from "@/utils/setting";
 import Link from "next/link";
 
 export default function SettingsPage() {
   const [activeSetting, setActiveSetting] = useState("ai-api"); // 初始显示 AI API 设置
+  const [deepseekApi, setDeepseekApi] = useState<AIApiSetting>();
+  const [kimichatApi, setKimichatApi] = useState<AIApiSetting>();
+  const [localApi, setLocalApi] = useState<AIApiSetting>();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await loadSetting();
+        if (settings?.AiApiSetting) {
+          setDeepseekApi(settings.AiApiSetting.deepSeek);
+          setKimichatApi(settings.AiApiSetting.kimichat);
+          setLocalApi(settings.AiApiSetting.local);
+        }
+      } catch (error) {
+        console.error("加载设置失败:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // 处理 DeepSeek 保存
   const handleDeepseekSave = async (data: AIApiSetting) => {
     try {
-      // 1. 获取当前设置
-      const currentSetting = await loadSetting();
-      // 2. 创建新的 AI 设置数组（如果当前不存在则初始化空数组）
-      const newAiSettings = [...(currentSetting?.AiApiSetting || []), data];
+      const newAiSettings = {
+        AiApiSetting: {
+          deepSeek: data,
+        },
+      };
       // 3. 调用 updateSetting 更新配置
-      await updateSetting({
-        AiApiSetting: newAiSettings,
-      });
+      await updateSetting(newAiSettings);
       console.log("DeepSeek 设置已保存:", data);
     } catch (error) {
       console.error("保存失败:", error);
     }
-  };
-
-  // 处理 KimiChat 保存
-  const handleKimichatSave = (data: AIApiSetting) => {
-    console.log("KimiChat 设置已保存:", data);
-    // 这里可添加实际保存逻辑（如存本地存储或发请求）
-  };
-
-  // 处理本地设置保存
-  const handleLocalSave = (data: AIApiSetting) => {
-    console.log("本地设置已保存:", data);
-    // 这里可添加实际保存逻辑（如存本地存储或发请求）
   };
 
   return (
@@ -59,25 +70,32 @@ export default function SettingsPage() {
         {activeSetting === "ai-api" && (
           <>
             <div className="justify-between items-center mb-4 flex">
-            <h1 className="text-2xl font-bold mb-4">AI API 设置</h1>
-            <Link
-              href="/library"
-              className="p-2 text-blue-600 hover:text-blue-800"
-            >
-              返回书架 →
-            </Link>
+              <h1 className="text-2xl font-bold mb-4">AI API 设置</h1>
+              <Link
+                href="/library"
+                className="p-2 text-blue-600 hover:text-blue-800"
+              >
+                返回书架 →
+              </Link>
             </div>
             <ApiSetting
               title="deepseek api 设置"
               modelOptions={["deepseek-r1", "deepseek-chat"]}
               keyPlaceholder="输入你的 deepseek API key"
+              onSave={handleDeepseekSave}
+              onloadData={deepseekApi}
             />
             <ApiSetting
               title="kimichat api 设置"
               modelOptions={["kimichat-v1", "kimichat-pro"]}
               keyPlaceholder="输入你的 kimichat API key"
+              onloadData={kimichatApi}
             />
-            <ApiSetting title="本地api设置" hasUrl={true} />
+            <ApiSetting
+              title="本地api设置"
+              hasUrl={true}
+              onloadData={localApi}
+            />
           </>
         )}
         {/* {activeSetting === 'other-setting' && (

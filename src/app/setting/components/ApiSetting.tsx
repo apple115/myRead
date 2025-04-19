@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { AIApiSetting } from "@/types/aiApi";
 
 interface ApiSettingProps {
@@ -9,6 +9,7 @@ interface ApiSettingProps {
   keyPlaceholder?: string; // 输入对应的 API key
   hasUrl?: boolean; // 预留扩展标记
   onSave?: (data: AIApiSetting) => void; // 保存按钮的回调函数
+  onloadData?: AIApiSetting;
 }
 
 export default function ApiSetting({
@@ -19,14 +20,27 @@ export default function ApiSetting({
   keyPlaceholder = "输入对应的 API key",
   hasUrl = false,
   onSave,
+  onloadData,
 }: ApiSettingProps) {
   const [model, setModel] = useState("");
   const [key, setKey] = useState("");
   const [url, setUrl] = useState("");
 
+  useEffect(() => {
+    if (onloadData) {
+      if (hasUrl) {
+        setUrl(onloadData?.url || "");
+        setModel(onloadData?.model || "");
+      } else {
+        setModel(onloadData?.model || "");
+        setKey(onloadData?.key || "");
+      }
+    }
+  }, [onloadData, hasUrl]);
+
   const handleSave = () => {
     if (hasUrl) {
-      onSave?.({url,model}); // 本地模型调用
+      onSave?.({ url, model }); // 本地模型调用
     } else {
       onSave?.({ model, key }); // 远程模型调用
     }
