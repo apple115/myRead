@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import DialogRecord from "./DialogRecord";
+import { ArrowUp } from "lucide-react";
 
 interface AiBookDialogProps {
   bookTitle: string;
@@ -36,17 +37,18 @@ export default function AiBookDialog({ bookTitle }: AiBookDialogProps) {
       onclose={() => {}}
     >
       <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl max-h-4xl w-3/4 h-3/4 relative">
-        <div className="flex justify-between">
-          <div className="text-lg font-bold m-2">AI 书本对话</div>
-          <div className="text-lg font-bold m-2">{bookTitle}</div>
-          <div className="text-lg font-bold m-2">退出</div>
+        <div className="flex justify-center items-center">
+          <div className="pt-2">
+            <div className="text-lg font-bold ">AI 书本对话</div>
+            <div className="text-xs ">《{bookTitle}》</div>
+          </div>
         </div>
         <div className="p-4">
           <DialogRecord dialogs={dialogs} />
         </div>
         <div className="absolute bottom-0 w-full m-4">
           <div className="">
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 m-2">
               <button className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded">
                 书籍亮点
               </button>
@@ -61,19 +63,15 @@ export default function AiBookDialog({ bookTitle }: AiBookDialogProps) {
               onSubmit={handleSubmit}
               className="m-1 p-2 border rounded w-3/4"
             >
-              <div className="flex justify-between">
-                <textarea
+              <div className="flex justify-between items-center ">
+                <input
                   placeholder={`针对《${bookTitle}》提出你的问题`}
-                  className="w-3/4 form-textarea rounded-l"
+                  className="w-full"
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
-                  rows={1}
                 />
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1 px-2 rounded"
-                >
-                  提交
+                <button type="submit">
+                  <ArrowUp size={16} className="" />
                 </button>
               </div>
             </form>
