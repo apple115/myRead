@@ -43,6 +43,14 @@ export default function LibraryPage() {
     content: "",
   });
 
+  const [chatBookState, setChatBookState] = useState<{
+    visible: boolean;
+    bookId: string;
+  }>({
+    visible: false,
+    bookId: "",
+  });
+
   useEffect(() => {
     const loadBooks = async () => {
       try {
@@ -170,6 +178,9 @@ export default function LibraryPage() {
                     book={book}
                     onGenerateMindMap={handleGenerateMindMap}
                     isGeneratingMindMap={loading.mindMap}
+                    openChatBook={() => {
+                      setChatBookState({ visible: true, bookId: book.hash });
+                    }}
                     onDelete={handleDeleteBook}
                   />
                 ))
@@ -182,7 +193,12 @@ export default function LibraryPage() {
           </>
         )}
       </div>
-      {true && <AiBookDialog bookTitle="示例书籍名称" />}
+      {chatBookState.visible && (
+        <AiBookDialog
+          bookId={chatBookState.bookId}
+          onClose={() => setChatBookState({ visible: false, bookId: "" })}
+        />
+      )}
       {mindMapState.visible && (
         <MindMapModal
           content={mindMapState.content}

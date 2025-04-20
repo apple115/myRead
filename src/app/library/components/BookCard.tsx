@@ -6,12 +6,15 @@ interface BookCardProps {
   book: EpubMetaData;
   onGenerateMindMap: (bookId: string) => void;
   isGeneratingMindMap: boolean;
+  //打开对话书籍
+  openChatBook: (bookId: string) => void;
   onDelete: (bookId: string) => Promise<void>;
 }
 
 export default function BookCard({
   book,
   onGenerateMindMap,
+  openChatBook,
   isGeneratingMindMap,
   onDelete,
 }: BookCardProps) {
@@ -61,6 +64,14 @@ export default function BookCard({
     }
   };
 
+  const handleOpenChatBook = async () => {
+    try {
+      await openChatBook(book.hash);
+      setMenuOpen(false);
+    } catch (error) {
+      console.error("Failed to open chat book:", error);
+    }
+  };
   return (
     <div
       className="relative"
@@ -134,6 +145,12 @@ export default function BookCard({
               disabled={isGeneratingMindMap}
             >
               {isGeneratingMindMap ? "思维导图正在生成..." : "生成思维导图"}
+            </button>
+            <button
+              onClick={handleOpenChatBook}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+            >
+              对话书籍
             </button>
             <button
               onClick={async (e) => {
