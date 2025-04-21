@@ -12,7 +12,6 @@ import { askAIWithFile } from "@/utils/ai";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
 import { MindMapModal } from "@/app/library/components/MindMapModal";
-import AiBookDialog from "./components/AiBookDialog";
 import Link from "next/link";
 
 type LoadingState = {
@@ -41,14 +40,6 @@ export default function LibraryPage() {
   }>({
     visible: false,
     content: "",
-  });
-
-  const [chatBookState, setChatBookState] = useState<{
-    visible: boolean;
-    bookId: string;
-  }>({
-    visible: false,
-    bookId: "",
   });
 
   useEffect(() => {
@@ -99,7 +90,7 @@ export default function LibraryPage() {
     });
 
     const question =
-      "请根据这本书的内容生成meramid 语法的中文思维导图,直接可以使用的语法不需要其他文字，生成的思维导图不可以太大";
+      "请根据这本书的内容生成 mermaid 语法的中文思维导图,直接可以使用的语法不需要其他文字，生成的思维导图不可以太大";
     const response = await askAIWithFile(file, question);
     if (!response?.content) {
       throw new Error("AI没有返回有效的内容");
@@ -178,9 +169,6 @@ export default function LibraryPage() {
                     book={book}
                     onGenerateMindMap={handleGenerateMindMap}
                     isGeneratingMindMap={loading.mindMap}
-                    openChatBook={() => {
-                      setChatBookState({ visible: true, bookId: book.hash });
-                    }}
                     onDelete={handleDeleteBook}
                   />
                 ))
@@ -193,12 +181,6 @@ export default function LibraryPage() {
           </>
         )}
       </div>
-      {chatBookState.visible && (
-        <AiBookDialog
-          bookId={chatBookState.bookId}
-          onClose={() => setChatBookState({ visible: false, bookId: "" })}
-        />
-      )}
       {mindMapState.visible && (
         <MindMapModal
           content={mindMapState.content}
