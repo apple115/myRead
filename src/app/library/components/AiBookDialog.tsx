@@ -2,16 +2,21 @@ import React, { useEffect, useState } from "react";
 import DialogRecord from "./DialogRecord";
 import { Dialog } from "radix-ui";
 import { ArrowUp } from "lucide-react";
-import { loadEpubMetaData } from "@/utils/epub";
+import { loadEpubMetaData, loadEpubData } from "@/utils/epub";
+import { uploadFileAndGetId, askAIWithFile } from "@/utils/ai";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
 interface AiBookDialogProps {
   bookId: string;
-  open:boolean
+  open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-export default function AiBookDialog({ bookId ,open,setOpen}: AiBookDialogProps) {
+export default function AiBookDialog({
+  bookId,
+  open,
+  setOpen,
+}: AiBookDialogProps) {
   //1 通过bookId 得到书本信息
   //2 通过bookId 查看是否有对话记录
   //3 通过bookId 上传书本
@@ -19,7 +24,6 @@ export default function AiBookDialog({ bookId ,open,setOpen}: AiBookDialogProps)
   const [bookTitle, setBookTitle] = useState<string>("");
 
   async function getMetaData() {
-    console.log("你好");
     try {
       if (bookId.length == 0) {
         throw new Error("bookId为空");
@@ -30,6 +34,25 @@ export default function AiBookDialog({ bookId ,open,setOpen}: AiBookDialogProps)
       }
     } catch (error) {
       console.error("json数据加载失败:", error);
+    }
+  }
+
+  async function getAiFileID(bookId: string): Promise<string | null> {
+    try {
+      const data = await loadEpubData(bookId);
+      if (!data) {
+        throw new Error("无法加载EPUB内容");
+      }
+
+      const blob = new Blob([data], { type: "application/epub+zip" });
+      const file = new File([blob], `${bookId}.epub`, {
+        type: "application/epub+zip",
+      });
+      const fileId = await uploadFileAndGetId(file);
+      return fileId;
+    } catch (error) {
+      console.log("失败得到aifileId");
+      return null;
     }
   }
 
@@ -45,21 +68,41 @@ export default function AiBookDialog({ bookId ,open,setOpen}: AiBookDialogProps)
   ];
 
   const [dialogs, setDialogs] =
-    useState<{ role: "user" | "ai"; content: string }[]>(fakeDialogs);
+    useState<{ role: "user" | "ai"; content: string }[]>([]);
   const [userInput, setUserInput] = useState("");
   // 生成假数据
 
+  const processQuestion = async (content: string) => {
+    if (content.trim() === "") return;
+
+    // 添加用户提问
+    const newDialogs = [...dialogs, { role: "user" as const, content }];
+
+    // const AiFileId = await getAiFileID(bookId);
+    const AiFileId = "d03qe9eqvl73j296tc20"
+    // 生成 AI 回复（后续需要替换为实际 API 调用）
+    if (AiFileId != null) {
+      const aiReply =await askAIWithFile(AiFileId, content);
+      const updatedDialogs = [
+        ...newDialogs,
+        { role: "ai" as const, content: aiReply.content },
+      ];
+      // 更新对话记录并清空输入
+      setDialogs(updatedDialogs);
+    }else{
+      const updatedDialogs = [
+        ...newDialogs,
+        { role: "ai" as const, content: "网络错误" },
+      ];
+      // 更新对话记录并清空输入
+      setDialogs(updatedDialogs);
+    }
+    setUserInput("");
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (userInput.trim() === "") return;
-    // 模拟用户输入记录
-    const newDialogs = [...dialogs, { role: "user", content: userInput }];
-    // 模拟 AI 响应，实际应调用 API 获取真实响应
-    const aiReply = `这是关于《${bookTitle}》对 ${userInput} 的回复`;
-    const updatedDialogs = [...newDialogs, { role: "ai", content: aiReply }];
-    setDialogs(updatedDialogs);
-    setUserInput("");
-    // 后续可添加保存对话内容逻辑
+    processQuestion(userInput);
   };
 
   return (
@@ -70,28 +113,35 @@ export default function AiBookDialog({ bookId ,open,setOpen}: AiBookDialogProps)
             <Dialog.Title className="m-0 text-[17px] font-medium text-mauve12">
               书本对话
             </Dialog.Title>
-            <Dialog.Description className="mb-5 mt-2.5 text-[15px] leading-normal text-mauve11">
-              {bookTitle}
+            <Dialog.Description className="mb-5 text-[15px] leading-normal text-gray-700">
+              &laquo;{bookTitle}&raquo;
             </Dialog.Description>
-            <div className="p-4">
+            <div>
               <DialogRecord dialogs={dialogs} />
-            </div>
-            <div className="absolute bottom-0 w-full m-4">
-              <div className="">
+              <div className="w-full ">
                 <div className="flex space-x-4 m-2">
-                  <button className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded">
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
+                    onClick={() => processQuestion("书籍亮点")}
+                  >
                     书籍亮点
                   </button>
-                  <button className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded">
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
+                    onClick={() => processQuestion("背景解读")}
+                  >
                     背景解读
                   </button>
-                  <button className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded">
+                  <button
+                    className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
+                    onClick={() => processQuestion("关键概念")}
+                  >
                     关键概念
                   </button>
                 </div>
                 <form
                   onSubmit={handleSubmit}
-                  className="m-1 p-2 border rounded w-3/4"
+                  className="p-2 border rounded w-full"
                 >
                   <div className="flex justify-between items-center ">
                     <input

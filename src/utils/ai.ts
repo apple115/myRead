@@ -5,8 +5,9 @@ import { loadSetting, type AiApiSettings } from "./setting";
 const modelToUrlMap = {
   "deepseek-chat": "https://api.deepseek.com/v1",
   "deepseek-r1": "https://api.deepseek.com/v1",
-  "kimichat-v1": "https://api.moonshot.cn/v1",
-  "kimichat-pro": "https://api.moonshot.cn/v1",
+  "moonshot-v1-8k": "https://api.moonshot.cn/v1",
+  "moonshot-v1-32k": "https://api.moonshot.cn/v1",
+  "moonshot-v1-128k": "https://api.moonshot.cn/v1",
 };
 
 interface AIResponse {
@@ -151,7 +152,7 @@ async function callAIOnce(
 // 上传文件并获取文件ID
 async function uploadFileAndGetId(
   file: File,
-  model: string = "kimichat-v1",
+  model: string = "moonshot-v1-8k",
 ): Promise<string | null> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -180,7 +181,7 @@ async function uploadFileAndGetId(
 async function askAIWithFile(
   fileId: string,
   question: string,
-  model: string = "kimichat-v1",
+  model: string = "moonshot-v1-32k",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -188,10 +189,10 @@ async function askAIWithFile(
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
     const fileContent = await (await openai.files.content(fileId)).text();
-    const messageList = makeMessages(question, [
-      ...systemMessages,
+    const messageList = await makeMessages(question, [
       { role: "system", content: fileContent },
     ]);
+    console.log("messageList",messageList)
     const completion = await openai.chat.completions.create({
       model,
       //@ts-ignore

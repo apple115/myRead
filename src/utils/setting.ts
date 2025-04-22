@@ -5,6 +5,7 @@ import {
   mkdir,
   BaseDirectory,
 } from "@tauri-apps/plugin-fs";
+import _ from "lodash";
 
 // ├── epub-reader-data/
 // │   ├── metadata/
@@ -24,13 +25,13 @@ import {
 // │   ├── {epub_id}.epub            // EPUB 文件存储
 
 export interface Setting {
-  AiApiSetting: AiApiSettings
+  AiApiSetting: AiApiSettings;
 }
 
-export interface AiApiSettings{
-  deepSeek?:AIApiSetting
-  kimichat?:AIApiSetting
-  local?:AIApiSetting
+export interface AiApiSettings {
+  deepSeek?: AIApiSetting;
+  kimichat?: AIApiSetting;
+  local?: AIApiSetting;
 }
 
 async function ensureSettingDir() {
@@ -60,7 +61,7 @@ async function loadSetting(): Promise<Setting | null> {
     const data = await readTextFile(filePath, {
       baseDir: BaseDirectory.AppData,
     });
-    console.log("配置文件",data)
+    console.log("配置文件", data);
     return JSON.parse(data) as Setting;
   } catch (error) {
     console.error("加载设置文件失败:", error);
@@ -71,10 +72,7 @@ async function loadSetting(): Promise<Setting | null> {
 async function updateSetting(newSetting: Partial<Setting>): Promise<void> {
   const currentSetting = await loadSetting();
   // 合并当前设置与新设置，若当前设置不存在则使用默认空数组
-  const updatedSetting = {
-    ...currentSetting,
-    ...newSetting,
-  };
+  const updatedSetting = _.merge({}, currentSetting, newSetting);
   await saveSetting(updatedSetting as Setting);
 }
 

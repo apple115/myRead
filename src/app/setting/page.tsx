@@ -48,6 +48,22 @@ export default function SettingsPage() {
     }
   };
 
+  // 处理 DeepSeek 保存
+  const handleKimichatSave = async (data: AIApiSetting) => {
+    try {
+      const newAiSettings = {
+        AiApiSetting: {
+          kimichat: data,
+        },
+      };
+      // 3. 调用 updateSetting 更新配置
+      await updateSetting(newAiSettings);
+      console.log("DeepSeek 设置已保存:", data);
+    } catch (error) {
+      console.error("保存失败:", error);
+    }
+  };
+
   return (
     <div className="max-w-screen-xl mx-auto p-4 flex">
       <div className="w-64 p-4">
@@ -87,8 +103,9 @@ export default function SettingsPage() {
             />
             <ApiSetting
               title="kimichat api 设置"
-              modelOptions={["kimichat-v1", "kimichat-pro"]}
+              modelOptions={["moonshot-v1-8k", "moonshot-v1-32k","moonshot-v1-128k"]}
               keyPlaceholder="输入你的 kimichat API key"
+              onSave={handleKimichatSave}
               onloadData={kimichatApi}
             />
             <ApiSetting
