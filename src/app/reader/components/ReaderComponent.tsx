@@ -131,7 +131,9 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             annotation.type,
             annotation.cfiRange,
             {},
-            undefined,
+            (e: MouseEvent) => {
+              handleTextSelection(annotation, rendition);
+            },
             "hl",
             { fill: "yellow", "fill-opacity": "0.3" },
           );
@@ -271,7 +273,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             setSelections((list) => list.concat(annotation));
           }}
           handlehighlightClick={handleTextSelection}
-          onClose={()=>setShowNoteInput(false)}
+          onClose={() => setShowNoteInput(false)}
         />
       )}
     </div>
