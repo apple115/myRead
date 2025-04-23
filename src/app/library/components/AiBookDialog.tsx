@@ -5,6 +5,7 @@ import { ArrowUp } from "lucide-react";
 import { loadEpubMetaData, loadEpubData } from "@/utils/epub";
 import { uploadFileAndGetId, askAIWithFile } from "@/utils/ai";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { loadPersist, updatePersist } from "@/utils/persist";
 
 interface AiBookDialogProps {
   bookId: string;
@@ -39,17 +40,31 @@ export default function AiBookDialog({
 
   async function getAiFileID(bookId: string): Promise<string | null> {
     try {
-      const data = await loadEpubData(bookId);
-      if (!data) {
-        throw new Error("无法加载EPUB内容");
-      }
+      // 如果Persist中有数据返回Persist
+      const persist = await loadPersist(bookId);
+      if (persist?.aiFileId != null) {
+        return persist.aiFileId;
+      } else {
+        const data = await loadEpubData(bookId);
+        if (!data) {
+          throw new Error("无法加载EPUB内容");
+        }
 
-      const blob = new Blob([data], { type: "application/epub+zip" });
-      const file = new File([blob], `${bookId}.epub`, {
-        type: "application/epub+zip",
-      });
-      const fileId = await uploadFileAndGetId(file);
-      return fileId;
+        const blob = new Blob([data], { type: "application/epub+zip" });
+        const file = new File([blob], `${bookId}.epub`, {
+          type: "application/epub+zip",
+        });
+        const fileId = await uploadFileAndGetId(file);
+        if (fileId != null) {
+          const newPersistData = {
+            aiFileId: fileId,
+          };
+          await updatePersist(bookId, newPersistData);
+        } else {
+          throw new Error("fileId is null");
+        }
+        return fileId;
+      }
     } catch (error) {
       console.log("失败得到aifileId");
       return null;
@@ -67,8 +82,9 @@ export default function AiBookDialog({
     { role: "ai", content: "关键人物包括主角和一些配角。" },
   ];
 
-  const [dialogs, setDialogs] =
-    useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [dialogs, setDialogs] = useState<
+    { role: "user" | "ai"; content: string }[]
+  >([]);
   const [userInput, setUserInput] = useState("");
   // 生成假数据
 
@@ -78,18 +94,17 @@ export default function AiBookDialog({
     // 添加用户提问
     const newDialogs = [...dialogs, { role: "user" as const, content }];
 
-    // const AiFileId = await getAiFileID(bookId);
-    const AiFileId = "d03qe9eqvl73j296tc20"
+    const AiFileId = await getAiFileID(bookId);
     // 生成 AI 回复（后续需要替换为实际 API 调用）
     if (AiFileId != null) {
-      const aiReply =await askAIWithFile(AiFileId, content);
+      const aiReply = await askAIWithFile(AiFileId, content);
       const updatedDialogs = [
         ...newDialogs,
         { role: "ai" as const, content: aiReply.content },
       ];
       // 更新对话记录并清空输入
       setDialogs(updatedDialogs);
-    }else{
+    } else {
       const updatedDialogs = [
         ...newDialogs,
         { role: "ai" as const, content: "网络错误" },

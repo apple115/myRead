@@ -5,6 +5,8 @@ import {
   writeTextFile,
   remove,
 } from "@tauri-apps/plugin-fs";
+import _ from "lodash";
+
 // ${appData}
 // ├── epub-reader-data/
 // │   ├── metadata/
@@ -23,6 +25,7 @@ import {
 // │   ├── {epub_id}.epub            // EPUB 文件存储
 export interface Persist {
   location: string | null;
+  aiFileId?: string;
 }
 
 //确保目录存在
@@ -53,13 +56,21 @@ async function loadPersist(epubId: string): Promise<Persist | null> {
     const data = await readTextFile(filePath, {
       baseDir: BaseDirectory.AppData,
     });
-    console.log("epubId:", epubId);
-    console.log("Persist:", data);
     return JSON.parse(data) as Persist;
   } catch (error) {
     console.error("加载Persist失败", error);
     return null;
   }
+}
+
+async function updatePersist(
+  epubId: string,
+  newPersist: Partial<Persist>,
+): Promise<void> {
+  const currentPersist = await loadPersist(epubId);
+  // 合并当前设置与新设置，若当前设置不存在则使用默认空数组
+  const updatedPersist = _.merge({}, currentPersist, newPersist);
+  await savePersist(epubId, updatedPersist as Persist);
 }
 
 async function deletePersist(epubId: string): Promise<void> {
@@ -74,4 +85,4 @@ async function deletePersist(epubId: string): Promise<void> {
   }
 }
 
-export { savePersist, loadPersist, deletePersist };
+export { savePersist, loadPersist, deletePersist,updatePersist };
