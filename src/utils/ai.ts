@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
 import { fetch } from "@tauri-apps/plugin-http";
 import { loadSetting, type AiApiSettings } from "./setting";
+import _ from "lodash";
 
 const modelToUrlMap = {
   "deepseek-chat": "https://api.deepseek.com/v1",
@@ -19,7 +20,7 @@ interface AIResponse {
   };
 }
 
-type Message = {
+export type Message = {
   role: "system" | "user" | "assistant";
   content: string;
 };
@@ -59,19 +60,14 @@ async function createOpenAIInstance(model: string): Promise<OpenAI | null> {
 
 /**
  * 生成包含系统消息和用户消息的消息列表
- * @param input 用户输入的内容
  * @param n 保留的最新消息数量，默认为 20
  * @returns 包含系统消息和用户消息的消息列表
  */
 async function makeMessages(
-  input: string,
   prevMessages: Message[] = [],
   n: number = 20,
 ): Promise<Message[]> {
-  const newMessages = [
-    ...prevMessages,
-    { role: "user" as "user", content: input },
-  ];
+  const newMessages = [...prevMessages];
   return newMessages.length > n
     ? [...systemMessages, ...newMessages.slice(-n)]
     : [...systemMessages, ...newMessages];
@@ -93,7 +89,7 @@ async function callAI(
     if (!openai) {
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
-    const messageList = await makeMessages(prompt, prevMessages);
+    const messageList = await makeMessages(prevMessages);
     const completion = await openai.chat.completions.create({
       model,
       messages: messageList,
@@ -180,6 +176,7 @@ async function uploadFileAndGetId(
  */
 async function askAIWithFile(
   fileId: string,
+  prevMessages: Message[],
   question: string,
   model: string = "moonshot-v1-32k",
 ): Promise<AIResponse> {
@@ -189,14 +186,21 @@ async function askAIWithFile(
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
     const fileContent = await (await openai.files.content(fileId)).text();
-    const messageList = await makeMessages(question, [
-      { role: "system", content: fileContent },
-    ]);
-    console.log("messageList",messageList)
+    const messageList = await makeMessages(prevMessages);
+    const updatedMessageList = _.chain(messageList)
+      .concat(
+        {
+          role: "assistant",
+          content: fileContent,
+        },
+        { role: "user", content: question },
+      )
+      .value();
+    console.log("messageList", updatedMessageList);
     const completion = await openai.chat.completions.create({
       model,
       //@ts-ignore
-      messages: messageList,
+      messages: updatedMessageList,
       temperature: 0.3,
     });
     const content = completion.choices[0]?.message?.content;

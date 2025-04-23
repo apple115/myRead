@@ -6,6 +6,8 @@ import { loadEpubMetaData, loadEpubData } from "@/utils/epub";
 import { uploadFileAndGetId, askAIWithFile } from "@/utils/ai";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { loadPersist, updatePersist } from "@/utils/persist";
+import { loadAiDialog, saveAiDialog, updateAiDialog } from "@/utils/ai-dialog";
+import type { Message } from "@/utils/ai";
 
 interface AiBookDialogProps {
   bookId: string;
@@ -71,46 +73,46 @@ export default function AiBookDialog({
     }
   }
 
+  async function getAiDialog() {
+    const data = await loadAiDialog(bookId);
+    if (data != null) {
+      setDialogs(data);
+    }
+  }
+
   useEffect(() => {
     getMetaData();
+    getAiDialog();
   }, []);
 
-  const fakeDialogs = [
-    { role: "user", content: "这本书的主要内容是什么？" },
-    { role: "ai", content: "这本书主要讲述了一些有趣的故事和知识。" },
-    { role: "user", content: "有哪些关键人物？" },
-    { role: "ai", content: "关键人物包括主角和一些配角。" },
-  ];
+  const [dialogs, setDialogs] = useState<Message[]>([]);
 
-  const [dialogs, setDialogs] = useState<
-    { role: "user" | "ai"; content: string }[]
-  >([]);
   const [userInput, setUserInput] = useState("");
-  // 生成假数据
 
   const processQuestion = async (content: string) => {
     if (content.trim() === "") return;
 
-    // 添加用户提问
-    const newDialogs = [...dialogs, { role: "user" as const, content }];
-
     const AiFileId = await getAiFileID(bookId);
     // 生成 AI 回复（后续需要替换为实际 API 调用）
     if (AiFileId != null) {
-      const aiReply = await askAIWithFile(AiFileId, content);
+      const aiReply = await askAIWithFile(AiFileId, dialogs, content);
       const updatedDialogs = [
-        ...newDialogs,
-        { role: "ai" as const, content: aiReply.content },
+        ...dialogs,
+        { role: "user" as const, content: content },
+        { role: "system" as const, content: aiReply.content },
       ];
       // 更新对话记录并清空输入
       setDialogs(updatedDialogs);
+      await saveAiDialog(bookId, updatedDialogs);
     } else {
       const updatedDialogs = [
-        ...newDialogs,
-        { role: "ai" as const, content: "网络错误" },
+        ...dialogs,
+        { role: "system" as const, content: "网络错误" },
       ];
+      console.log("updatedDialogs", updatedDialogs);
       // 更新对话记录并清空输入
       setDialogs(updatedDialogs);
+      await saveAiDialog(bookId, updatedDialogs);
     }
     setUserInput("");
   };
