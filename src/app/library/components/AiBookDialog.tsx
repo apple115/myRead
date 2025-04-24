@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import DialogRecord from "./DialogRecord";
 import { Dialog } from "radix-ui";
 import { ArrowUp } from "lucide-react";
-import { loadEpubMetaData, loadEpubData } from "@/utils/epub";
-import { uploadFileAndGetId, askAIWithFile } from "@/utils/ai";
+import { loadEpubMetaData } from "@/utils/epub";
+import { askAIWithFile } from "@/utils/ai";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { loadPersist, updatePersist } from "@/utils/persist";
 import { loadAiDialog, saveAiDialog, updateAiDialog } from "@/utils/ai-dialog";
 import type { Message } from "@/utils/ai";
+import { getAiFileID } from "@/utils/ai";
 
 interface AiBookDialogProps {
   bookId: string;
@@ -37,39 +37,6 @@ export default function AiBookDialog({
       }
     } catch (error) {
       console.error("json数据加载失败:", error);
-    }
-  }
-
-  async function getAiFileID(bookId: string): Promise<string | null> {
-    try {
-      // 如果Persist中有数据返回Persist
-      const persist = await loadPersist(bookId);
-      if (persist?.aiFileId != null) {
-        return persist.aiFileId;
-      } else {
-        const data = await loadEpubData(bookId);
-        if (!data) {
-          throw new Error("无法加载EPUB内容");
-        }
-
-        const blob = new Blob([data], { type: "application/epub+zip" });
-        const file = new File([blob], `${bookId}.epub`, {
-          type: "application/epub+zip",
-        });
-        const fileId = await uploadFileAndGetId(file);
-        if (fileId != null) {
-          const newPersistData = {
-            aiFileId: fileId,
-          };
-          await updatePersist(bookId, newPersistData);
-        } else {
-          throw new Error("fileId is null");
-        }
-        return fileId;
-      }
-    } catch (error) {
-      console.log("失败得到aifileId");
-      return null;
     }
   }
 

@@ -3,6 +3,7 @@ import { EpubMetaData, getEpubImage } from "@/utils/epub";
 import { useState, useEffect } from "react";
 import AiBookDialog from "@/app/library/components/AiBookDialog";
 import { ContextMenu } from "radix-ui";
+import { MindMapModal } from "./MindMapModal";
 
 interface BookCardProps {
   book: EpubMetaData;
@@ -18,7 +19,8 @@ export default function BookCard({
   onDelete,
 }: BookCardProps) {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  const [openAiBookDialog, setOpenAiBookDialog] = useState(false);
+  const [openMindMapModal, setOpenMindMapModal] = useState(false);
 
   useEffect(() => {
     const loadCover = async () => {
@@ -98,18 +100,17 @@ export default function BookCard({
         </ContextMenu.Trigger>
         <ContextMenu.Portal>
           <ContextMenu.Content className="bg-white overflow-hidden rounded-md min-w-[100px]">
-            <ContextMenu.Item asChild>
-              <button
-                onClick={handleGenerateMindMap}
-                className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                disabled={isGeneratingMindMap}
-              >
-                {isGeneratingMindMap ? "思维导图正在生成..." : "生成思维导图"}
-              </button>
+            <ContextMenu.Item
+              onClick={(e) => {
+                setOpenMindMapModal(true);
+              }}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+            >
+              生成思维导图
             </ContextMenu.Item>
             <ContextMenu.Item
               onClick={(e) => {
-                setOpen(true);
+                setOpenAiBookDialog(true);
               }}
               className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
             >
@@ -127,7 +128,16 @@ export default function BookCard({
           </ContextMenu.Content>
         </ContextMenu.Portal>
       </ContextMenu.Root>
-      <AiBookDialog bookId={book.hash} open={open} setOpen={setOpen} />
+      <AiBookDialog
+        bookId={book.hash}
+        open={openAiBookDialog}
+        setOpen={setOpenAiBookDialog}
+      />
+      <MindMapModal
+        bookId={book.hash}
+        open={openMindMapModal}
+        onOpenChange={setOpenMindMapModal}
+      />
     </div>
   );
 }

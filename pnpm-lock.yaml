@@ -47,6 +47,9 @@ importers:
       '@types/lodash':
         specifier: ^4.17.16
         version: 4.17.16
+      '@types/react-svg-pan-zoom':
+        specifier: ^3.3.9
+        version: 3.3.9
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -83,6 +86,9 @@ importers:
       react-reader:
         specifier: ^2.0.12
         version: 2.0.12(react@19.0.0)
+      react-svg-pan-zoom:
+        specifier: ^3.13.1
+        version: 3.13.1
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -2103,6 +2109,9 @@ packages:
     peerDependencies:
       '@types/react': ^19.0.0
 
+  '@types/react-svg-pan-zoom@3.3.9':
+    resolution: {integrity: sha512-/VA3nI3OmIjgrvWPPeesyON2OxoC27v4yuZ2VRjItXrQnmGZTnQb2WUafLm7+weTUsfFfmngGAyH8oIlbKDkNA==}
+
   '@types/react@19.0.10':
     resolution: {integrity: sha512-JuRQ9KXLEjaUNjTWpzuR231Z2WpIwczOkBEIvbHNCzQefFIT0L8IqE6NV6ULLyC1SI/i234JnDoMkfg+RjQj2g==}
 
@@ -3832,6 +3841,9 @@ packages:
       '@types/react':
         optional: true
 
+  react-svg-pan-zoom@3.13.1:
+    resolution: {integrity: sha512-mUGoXfo255c+T/FAdZ5Fr0paw9OpAz4owGku5bRjUOzSKUmqUJpuYbscuuzOIJWbmrJ0N/9mOWPE8JdjSYITbQ==}
+
   react-swipeable@7.0.2:
     resolution: {integrity: sha512-v1Qx1l+aC2fdxKa9aKJiaU/ZxmJ5o98RMoFwUqAAzVWUcxgfHFXDDruCKXhw6zIYXm6V64JiHgP9f6mlME5l8w==}
     peerDependencies:
@@ -4078,6 +4090,9 @@ packages:
 
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
+  transformation-matrix@2.16.1:
+    resolution: {integrity: sha512-tdtC3wxVEuzU7X/ydL131Q3JU5cPMEn37oqVLITjRDSDsnSHVFzW2JiCLfZLIQEgWzZHdSy3J6bZzvKEN24jGA==}
 
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
@@ -6154,6 +6169,10 @@ snapshots:
       undici-types: 6.20.0
 
   '@types/react-dom@19.0.4(@types/react@19.0.10)':
+    dependencies:
+      '@types/react': 19.0.10
+
+  '@types/react-svg-pan-zoom@3.3.9':
     dependencies:
       '@types/react': 19.0.10
 
@@ -8428,6 +8447,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
 
+  react-svg-pan-zoom@3.13.1:
+    dependencies:
+      prop-types: 15.8.1
+      transformation-matrix: 2.16.1
+
   react-swipeable@7.0.2(react@19.0.0):
     dependencies:
       react: 19.0.0
@@ -8785,6 +8809,8 @@ snapshots:
       is-number: 7.0.0
 
   tr46@0.0.3: {}
+
+  transformation-matrix@2.16.1: {}
 
   trim-lines@3.0.1: {}
 

@@ -69,34 +69,6 @@ export default function LibraryPage() {
     }
   };
 
-  const extractMermaidCode = (text: string): string => {
-    const regex = /```mermaid[\s\S]*?```/i;
-    const match = text.match(regex);
-    if (!match) {
-      throw new Error("未找到有效的Mermaid代码块");
-    }
-    return match[0].replace(/^```mermaid\s*/, "").replace(/\s*```$/, "");
-  };
-
-  const generateMindMap = async (bookId: string): Promise<string> => {
-    const epubData = await loadEpubData(bookId);
-    if (!epubData) {
-      throw new Error("无法加载EPUB内容");
-    }
-
-    const blob = new Blob([epubData], { type: "application/epub+zip" });
-    const file = new File([blob], `${bookId}.epub`, {
-      type: "application/epub+zip",
-    });
-
-    const question =
-      "请根据这本书的内容生成 mermaid 语法的中文思维导图,直接可以使用的语法不需要其他文字，生成的思维导图不可以太大";
-    const response = await askAIWithFile(file, question);
-    if (!response?.content) {
-      throw new Error("AI没有返回有效的内容");
-    }
-    return extractMermaidCode(response.content);
-  };
 
   const handleDeleteBook = async (bookId: string) => {
     try {

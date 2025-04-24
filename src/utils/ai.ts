@@ -2,6 +2,8 @@ import { OpenAI } from "openai";
 import { fetch } from "@tauri-apps/plugin-http";
 import { loadSetting, type AiApiSettings } from "./setting";
 import _ from "lodash";
+import { loadPersist, updatePersist } from "./persist";
+import { loadEpubData } from "./epub";
 
 const modelToUrlMap = {
   "deepseek-chat": "https://api.deepseek.com/v1",
@@ -175,7 +177,8 @@ async function uploadFileAndGetId(
 
 /**
  * 使用文件内容向AI提问
- * @param file - 要发送的文件
+ * @param fileId - 要发送的文件
+ * @param prevMessages - 
  * @param question - 要问的问题
  * @returns 包含AI生成内容和用量的Promise
  * @throws 如果文件处理或API调用失败
@@ -224,10 +227,44 @@ async function askAIWithFile(
   }
 }
 
+async function getAiFileID(bookId: string): Promise<string | null> {
+  try {
+    // 如果Persist中有数据返回Persist
+    const persist = await loadPersist(bookId);
+    if (persist?.aiFileId != null) {
+      return persist.aiFileId;
+    } else {
+      const data = await loadEpubData(bookId);
+      if (!data) {
+        throw new Error("无法加载EPUB内容");
+      }
+
+      const blob = new Blob([data], { type: "application/epub+zip" });
+      const file = new File([blob], `${bookId}.epub`, {
+        type: "application/epub+zip",
+      });
+      const fileId = await uploadFileAndGetId(file);
+      if (fileId != null) {
+        const newPersistData = {
+          aiFileId: fileId,
+        };
+        await updatePersist(bookId, newPersistData);
+      } else {
+        throw new Error("fileId is null");
+      }
+      return fileId;
+    }
+  } catch (error) {
+    console.log("失败得到aifileId");
+    return null;
+  }
+}
+
 export {
   callAI,
   callAIOnce,
   uploadFileAndGetId,
   askAIWithFile,
+  getAiFileID,
   type AIResponse,
 };
