@@ -1,6 +1,7 @@
 import type { ITextSelection } from "@/types/annotation";
 import type { Rendition, Contents } from "epubjs";
 import { NoteInput } from "./NoteInput";
+import { useState } from "react";
 
 interface AnnotationMenuProps {
   /** EPUB内容对象 */
@@ -21,6 +22,7 @@ interface AnnotationMenuProps {
   handlehighlightClick: (select: ITextSelection, rendition: Rendition) => void;
 
   setShowNoteInput: (show: boolean) => void;
+  setShowAIDialog: (open: boolean) => void;
 }
 
 // 菜单项组件
@@ -50,128 +52,125 @@ export function AnnotationMenu({
   onAddAnnotation,
   handlehighlightClick,
   setShowNoteInput,
+  setShowAIDialog,
 }: AnnotationMenuProps) {
   if (!position) return null;
   return (
-      <div className="fixed inset-0 z-[9998]" onClick={onClose}>
-        <div
-          className="absolute bg-white rounded-lg shadow-xl p-2 z-[9999] min-w-[160px]"
-          style={{
-            left: position.x + 10,
-            top: position.y + 10,
+    <div className="fixed inset-0 z-[9998]" onClick={onClose}>
+      <div
+        className="absolute bg-white rounded-lg shadow-xl p-2 z-[9999] min-w-[160px]"
+        style={{
+          left: position.x + 10,
+          top: position.y + 10,
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            navigator.clipboard.writeText(selection.text || "");
+            onClose();
           }}
         >
-          <MenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(selection.text || "");
-              onClose();
-            }}
-          >
-            复制
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const styles = {
-                fill: "rgba(255, 235, 59, 0.3)",
-                "fill-opacity": "0.5",
-                border: "1px solid rgba(255, 152, 0, 0.5)",
-              };
-              onAddAnnotation({
-                ...selection,
-                type: "highlight",
-                styles: styles,
-              });
-              rendition?.annotations.highlight(
-                selection.cfiRange,
-                {},
-                (e: MouseEvent) => {
-                  handlehighlightClick(selection, rendition);
-                },
-                "highlight",
-                { ...styles, "pointer-events": "all", cursor: "pointer" },
-              );
-              onClose();
-            }}
-          >
-            高亮
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const styles = {
-                "border-bottom": "2px dashed rgba(0, 0, 255, 0.6)",
-              };
-              onAddAnnotation({
-                ...selection,
-                type: "underline",
-                styles: styles,
-              });
-              rendition?.annotations.highlight(
-                selection.cfiRange,
-                {},
-                (e: MouseEvent) => {
-                  handlehighlightClick(selection, rendition);
-                },
-                "underline",
-                {
-                  ...styles,
-                  "pointer-events": "all",
-                  cursor: "pointer",
-                },
-              );
-              onClose();
-            }}
-          >
-            波浪线
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const styles = {
-                "border-bottom": "1px dashed rgba(76, 175, 80, 0.8)",
-              };
-              onAddAnnotation({
-                ...selection,
-                type: "underline",
-                styles: styles,
-              });
-              rendition?.annotations.underline(
-                selection.cfiRange,
-                {},
-                (e: MouseEvent) => {
-                  handlehighlightClick(selection, rendition);
-                },
-                "underline",
-                {
-                  ...styles,
-                  "pointer-events": "all",
-                  cursor: "pointer",
-                },
-              );
-              onClose();
-            }}
-          >
-            下划线
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setShowNoteInput(true);
-              onClose();
-            }}
-          >
-            写想法
-          </MenuItem>
-          <MenuItem
-            onClick={async () => {
-              if (!selection.text?.trim()) {
-                alert("请先选择一些文本");
-                return;
-              }
-              await onAskAI(selection.text);
-              onClose();
-            }}
-          >
-            AI问书
-          </MenuItem>
-        </div>
+          复制
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const styles = {
+              fill: "rgba(255, 235, 59, 0.3)",
+              "fill-opacity": "0.5",
+              border: "1px solid rgba(255, 152, 0, 0.5)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "highlight",
+              styles: styles,
+            });
+            rendition?.annotations.highlight(
+              selection.cfiRange,
+              {},
+              (e: MouseEvent) => {
+                handlehighlightClick(selection, rendition);
+              },
+              "highlight",
+              { ...styles, "pointer-events": "all", cursor: "pointer" },
+            );
+            onClose();
+          }}
+        >
+          高亮
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const styles = {
+              "border-bottom": "2px dashed rgba(0, 0, 255, 0.6)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "underline",
+              styles: styles,
+            });
+            rendition?.annotations.highlight(
+              selection.cfiRange,
+              {},
+              (e: MouseEvent) => {
+                handlehighlightClick(selection, rendition);
+              },
+              "underline",
+              {
+                ...styles,
+                "pointer-events": "all",
+                cursor: "pointer",
+              },
+            );
+            onClose();
+          }}
+        >
+          波浪线
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            const styles = {
+              "border-bottom": "1px dashed rgba(76, 175, 80, 0.8)",
+            };
+            onAddAnnotation({
+              ...selection,
+              type: "underline",
+              styles: styles,
+            });
+            rendition?.annotations.underline(
+              selection.cfiRange,
+              {},
+              (e: MouseEvent) => {
+                handlehighlightClick(selection, rendition);
+              },
+              "underline",
+              {
+                ...styles,
+                "pointer-events": "all",
+                cursor: "pointer",
+              },
+            );
+            onClose();
+          }}
+        >
+          下划线
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowNoteInput(true);
+            onClose();
+          }}
+        >
+          写想法
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowAIDialog(true);
+            onClose();
+          }}
+        >
+          AI问书
+        </MenuItem>
       </div>
+    </div>
   );
 }

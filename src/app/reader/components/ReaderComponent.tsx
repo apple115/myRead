@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SelectionList } from "@/app/reader/components/SelectionList";
-import { AIDialog } from "@/app/reader/components/AIDialog";
 import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/app/reader/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/app/reader/components/EpubReaderContainer";
@@ -17,6 +16,7 @@ import { Reader } from "@/types/book";
 import { usePersist } from "../hooks/usePersist";
 import { type Persist } from "@/utils/persist";
 import { NoteInput } from "./NoteInput";
+import { AIInputOutput } from "./AIDialog";
 
 export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
@@ -35,6 +35,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [aiResponse, setAIResponse] = useState("");
   const [contents, setContents] = useState<Contents | null>(null);
   const [showNoteInput, setShowNoteInput] = useState(false);
+  const [showAIInputOutput, setShowAIInputOutput] = useState(false);
 
   const handleTextSelection = (
     newSelection: ITextSelection,
@@ -135,7 +136,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
               handleTextSelection(annotation, rendition);
             },
             "hl",
-            { fill: "yellow", "fill-opacity": "0.3" },
+            annotation.styles,
           );
         });
       }
@@ -243,6 +244,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           }}
           handlehighlightClick={handleTextSelection}
           setShowNoteInput={setShowNoteInput}
+          setShowAIDialog={setShowAIInputOutput}
         />
       )}
       <div className="mt-4">
@@ -258,12 +260,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           />
         )}
       </div>
-      <AIDialog
-        isOpen={isAIDialogOpen}
-        isLoading={isAILoading}
-        content={aiResponse}
-        onClose={() => setAIDialogOpen(false)}
-      />
       {showNoteInput && selection && (
         <NoteInput
           selection={selection}
@@ -276,6 +272,11 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           onClose={() => setShowNoteInput(false)}
         />
       )}
+      <AIInputOutput
+        text={selection?.text || ""}
+        isOpen={showAIInputOutput}
+        setIsOpen={setShowAIInputOutput}
+      />
     </div>
   );
 }

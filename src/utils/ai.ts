@@ -30,7 +30,11 @@ const systemMessages: Message[] = [
   {
     role: "system",
     content:
-      "你是寄存在阅读器中人工智能助手，你更擅长中文和英文的对话，帮助读者理解书本，回答用户的问题。你会为用户提供安全，有帮助，准确的markdown语法回答。同时，你会拒绝一切涉及恐怖主义，种族歧视，黄色暴力等问题的回答。",
+      "你是寄存在阅读器中人工智能助手，你更擅长中文和英文的对话，帮助读者理解书本，回答用户的问题。你会为用户提供安全，有帮助，准确回答。同时，你会拒绝一切涉及恐怖主义，种族歧视，黄色暴力等问题的回答。",
+  },
+  {
+    role: "system",
+    content: "使用markdown语法回答，同时使用中文回答",
   },
 ];
 
@@ -117,19 +121,21 @@ async function callAI(
  */
 async function callAIOnce(
   prompt: string,
-  model: "deepseek-chat",
+  model: string = "deepseek-chat",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
     if (!openai) {
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
-    const singleMessageList = await makeMessages(prompt, [], 1);
-    singleMessageList.concat(systemMessages);
+    const singleMessageList = await makeMessages([]);
+    const updatedMessageList = _.chain(singleMessageList)
+      .concat(systemMessages, { role: "user", content: prompt })
+      .value();
     const completion = await openai.chat.completions.create({
       model,
       //@ts-ignore
-      messages: singleMessageList,
+      messages: updatedMessageList,
     });
     const content = completion.choices[0]?.message?.content;
     if (!content) {
