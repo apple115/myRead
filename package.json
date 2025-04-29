@@ -32,13 +32,18 @@
     "mermaid": "^11.5.0",
     "next": "^15.2.0",
     "openai": "^4.87.3",
+    "playwright": "^1.52.0",
     "radix-ui": "^1.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-reader": "^2.0.12",
     "react-svg-pan-zoom": "^3.13.1",
-    "remark-gfm": "^4.0.1"
+    "reactflow": "^11.11.4",
+    "rehype-mermaid": "^3.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mermaidjs": "4",
+    "remark-rehype": "^11.1.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -187,7 +187,7 @@ async function askAIWithFile(
   fileId: string,
   prevMessages: Message[],
   question: string,
-  model: string = "moonshot-v1-32k",
+  model: string = "moonshot-v1-128k",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -211,6 +211,7 @@ async function askAIWithFile(
       //@ts-ignore
       messages: updatedMessageList,
       temperature: 0.3,
+      max_tokens: 4096,
     });
     const content = completion.choices[0]?.message?.content;
     if (!content) {

@@ -3,15 +3,12 @@ import { useEffect, useState } from "react";
 import {
   getAllEpubMetaData,
   EpubMetaData,
-  loadEpubData,
   deleteEpubData,
   deleteEpubMetaData,
   deleteEpubImage,
 } from "@/utils/epub";
-import { askAIWithFile } from "@/utils/ai";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
-import { MindMapModal } from "@/app/library/components/MindMapModal";
 import Link from "next/link";
 
 type LoadingState = {
@@ -33,13 +30,6 @@ export default function LibraryPage() {
   const [errors, setErrors] = useState<ErrorState>({
     books: null,
     mindMap: null,
-  });
-  const [mindMapState, setMindMapState] = useState<{
-    visible: boolean;
-    content: string;
-  }>({
-    visible: false,
-    content: "",
   });
 
   useEffect(() => {
@@ -82,26 +72,6 @@ export default function LibraryPage() {
     }
   };
 
-  const handleGenerateMindMap = async (bookId: string) => {
-    setLoading((prev) => ({ ...prev, mindMap: true }));
-    setErrors((prev) => ({ ...prev, mindMap: null }));
-
-    try {
-      const mermaidContent = await generateMindMap(bookId);
-      setMindMapState({
-        visible: true,
-        content: mermaidContent,
-      });
-    } catch (error) {
-      console.error("Failed to generate mind map:", error);
-      setErrors((prev) => ({
-        ...prev,
-        mindMap: "生成失败，请稍后重试。",
-      }));
-    } finally {
-      setLoading((prev) => ({ ...prev, mindMap: false }));
-    }
-  };
 
   return (
     <div>
@@ -139,8 +109,6 @@ export default function LibraryPage() {
                 books.map((book) => (
                   <BookCard
                     book={book}
-                    onGenerateMindMap={handleGenerateMindMap}
-                    isGeneratingMindMap={loading.mindMap}
                     onDelete={handleDeleteBook}
                   />
                 ))
@@ -153,14 +121,6 @@ export default function LibraryPage() {
           </>
         )}
       </div>
-      {mindMapState.visible && (
-        <MindMapModal
-          content={mindMapState.content}
-          isLoading={loading.mindMap}
-          error={errors.mindMap}
-          onClose={() => setMindMapState({ visible: false, content: "" })}
-        />
-      )}
     </div>
   );
 }
