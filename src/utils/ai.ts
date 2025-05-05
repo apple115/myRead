@@ -44,7 +44,7 @@ const systemMessages: Message[] = [
 async function createOpenAIInstance(model: string): Promise<OpenAI | null> {
   try {
     const setting = await loadSetting();
-    const apiKey = setting?.AiApiSetting?.[
+    const apiKey = setting?.AiApiSetting[
         model.includes("deepseek") ? "deepSeek" : "kimichat"
       ]?.key;
     if (!apiKey) {
@@ -160,7 +160,7 @@ async function uploadFileAndGetId(
     }
     const fileObject = await openai.files.create({
       file,
-      //@ts-expect-error
+      // @ts-expect-error openai type does not include 'purpose', but API requires it for file upload
       purpose: "file-extract",
     });
     return fileObject.id;

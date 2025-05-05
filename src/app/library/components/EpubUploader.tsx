@@ -83,7 +83,9 @@ export function EpubUploader({
         onUploadError?.(error as Error);
       } finally {
         setLoading(false);
-        setTimeout(() => setProgress(0), 1000);
+        setTimeout(() => {
+          setProgress(0);
+        }, 1000);
       }
     },
     [onUploadSuccess, onUploadError],

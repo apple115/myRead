@@ -4,7 +4,6 @@ import { SelectionList } from "@/app/reader/components/SelectionList";
 import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/app/reader/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/app/reader/components/EpubReaderContainer";
-import { callAI } from "@/utils/ai";
 import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { Contents, type Rendition } from "epubjs";
@@ -41,12 +40,14 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     if (rendition) {
       const range = rendition.getRange(newSelection.cfiRange);
       const rects = range.getClientRects();
-      const readerContainer = document.querySelector(".epub-container")!;
-      const rect = readerContainer.getBoundingClientRect();
-      setMenuPosition({
-        x: rects[0].x + rect.x,
-        y: rects[0].y + rect.y,
-      });
+      const readerContainer = document.querySelector(".epub-container");
+      if (readerContainer) {
+        const rect = readerContainer.getBoundingClientRect();
+        setMenuPosition({
+          x: rects[0].x + rect.x,
+          y: rects[0].y + rect.y,
+        });
+      }
       setShowMenu(true);
     }
   };
@@ -83,7 +84,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
         setEpubFileUrl(convertFileSrc(fullPath));
       }
-      loadSavedPersist().catch((error) => {
+      loadSavedPersist().catch((error:unknown) => {
         console.error("loadSavedPersist", error);
       });
     } catch (error) {
@@ -156,13 +157,13 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   // 自动保存注释
   useEffect(() => {
     if (selections.length > 0) {
-      saveCurrentAnnotations();
+      saveCurrentAnnotations().catch(console.error);
     }
   }, [selections, saveCurrentAnnotations]);
 
   useEffect(() => {
-    loadEpubFile();
-    loadSavedAnnotations();
+    loadEpubFile().catch(console.error);
+    loadSavedAnnotations().catch(console.error);
   }, [loadEpubFile, loadSavedAnnotations]);
 
   //FIX: 无法自动保存
@@ -175,9 +176,18 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">EPUB Reader</h1>
         <div className="flex gap-4">
-          <button onClick={() => saveCurrentPersist()}>保存</button>
           <button
-            onClick={() => setShowDrawer(!showDrawer)}
+            onClick={() => {
+              saveCurrentPersist().catch(console.error);
+            }}
+          >
+            保存
+          </button>
+          <button
+            onClick={() => {
+              setShowDrawer(!showDrawer);
+              setShowMenu(false);
+            }}
             className="p-2 bg-gray-100 rounded hover:bg-gray-200"
           >
             {showDrawer ? "隐藏批注" : "显示批注"}
@@ -208,7 +218,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           />
         </div>
       </div>
-      {showMenu && (
+      {showMenu && selection && (
         <AnnotationMenu
           contents={contents}
           position={menuPosition}
@@ -217,7 +227,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             const selection = contents?.window.getSelection();
             selection?.removeAllRanges();
           }}
-          selection={selection!}
+          selection={selection}
           rendition={rendition}
           onAddAnnotation={(annotation) => {
             setSelections((list) => list.concat(annotation));
@@ -233,7 +243,9 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           <EpubReaderContainer
             epubFileUrl={epubFileUrl}
             location={location}
-            onLocationChange={(loc: string) => setLocation(loc)}
+            onLocationChange={(loc: string) => {
+              setLocation(loc);
+            }}
             onRenditionChange={(_rendition: Rendition) => {
               setRendition(_rendition);
             }}
@@ -249,7 +261,9 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             setSelections((list) => list.concat(annotation));
           }}
           handlehighlightClick={handleTextSelection}
-          onClose={() => setShowNoteInput(false)}
+          onClose={() => {
+            setShowNoteInput(false);
+          }}
         />
       )}
       <AIInputOutput
