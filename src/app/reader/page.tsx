@@ -1,17 +1,21 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { loadEpubMetaData } from "@/utils/epub";
+import { loadEpubMetaData,type EpubMetaData } from "@/utils/epub";
 import ReaderComponent from "@/app/reader/components/ReaderComponent";
 
 export default function ReaderPage() {
   const searchParams = useSearchParams();
   const bookId = searchParams.get("bookId");
-  const [meta, setMeta] = useState(null);
+  const [meta, setMeta] = useState<EpubMetaData | null>(null);
 
   useEffect(() => {
     if (bookId) {
-      loadEpubMetaData(bookId).then(setMeta);
+      loadEpubMetaData(bookId).then((meta) => {
+        if (meta) {
+          setMeta(meta);
+        }
+      });
     }
   }, [bookId]);
 

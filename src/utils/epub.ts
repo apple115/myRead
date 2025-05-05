@@ -81,14 +81,14 @@ async function getEpubMetadate(epubId: string): Promise<EpubMetaData | null> {
 }
 
 // 生成唯一ID
-async function generateEpubId(file: File): Promise<string> {
-  // 将arrayBuffer转化为uint8Array
-  const arrayBuffer = await file.arrayBuffer();
-  const EpubId = await invoke<string>("generate_unique_id", {
-    fileContent: new Uint8Array(arrayBuffer),
-  });
-  return EpubId;
-}
+// async function generateEpubId(file: File): Promise<string> {
+//   // 将arrayBuffer转化为uint8Array
+//   const arrayBuffer = await file.arrayBuffer();
+//   const EpubId = await invoke<string>("generate_unique_id", {
+//     fileContent: new Uint8Array(arrayBuffer),
+//   });
+//   return EpubId;
+// }
 
 // 保存EPUB文件到本地
 async function saveEpubData(file: File): Promise<string> {
@@ -142,7 +142,7 @@ async function loadEpubMetaData(epubId: string): Promise<EpubMetaData | null> {
     const data = await readTextFile(filePath, {
       baseDir: BaseDirectory.AppData,
     });
-    return JSON.parse(data);
+    return JSON.parse(data) as EpubMetaData;
   } catch (error) {
     console.error("Failed to load EPUB metadata:", error);
     return null;
@@ -161,7 +161,7 @@ async function getAllEpubMetaData(): Promise<EpubMetaData[]> {
     });
 
     // 过滤出.json文件
-    const jsonFiles = files.filter((file) => file.name?.endsWith(".json"));
+    const jsonFiles = files.filter((file) => file.name.endsWith(".json"));
 
     // 读取每个json文件的内容并解析为EpubMetaData
     const metadataPromises = jsonFiles.map(async (file) => {

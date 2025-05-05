@@ -44,8 +44,7 @@ const systemMessages: Message[] = [
 async function createOpenAIInstance(model: string): Promise<OpenAI | null> {
   try {
     const setting = await loadSetting();
-    const apiKey =
-      setting?.AiApiSetting?.[
+    const apiKey = setting?.AiApiSetting?.[
         model.includes("deepseek") ? "deepSeek" : "kimichat"
       ]?.key;
     if (!apiKey) {
@@ -92,7 +91,7 @@ async function callAI(
     if (!openai) {
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
-    const messageList = await makeMessages(prevMessages);
+    const messageList = makeMessages(prevMessages);
     const completion = await openai.chat.completions.create({
       model,
       messages: messageList,
@@ -133,7 +132,6 @@ async function callAIOnce(
       .value();
     const completion = await openai.chat.completions.create({
       model,
-      //@ts-ignore
       messages: updatedMessageList,
     });
     const content = completion.choices[0]?.message?.content;
@@ -192,7 +190,7 @@ async function askAIWithFile(
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
     const fileContent = await (await openai.files.content(fileId)).text();
-    const messageList = await makeMessages(prevMessages);
+    const messageList = makeMessages(prevMessages);
     const updatedMessageList = _.chain(messageList)
       .concat(
         {
@@ -253,7 +251,7 @@ async function getAiFileID(bookId: string): Promise<string | null> {
       return fileId;
     }
   } catch (error) {
-    console.log("失败得到aifileId");
+    console.log("失败得到aifileId", error);
     return null;
   }
 }

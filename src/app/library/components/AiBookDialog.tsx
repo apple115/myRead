@@ -117,25 +117,19 @@ export default function AiBookDialog({
                 <div className="flex space-x-4 m-2">
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => {
-                      processQuestion("书籍亮点");
-                    }}
+                    onClick={() => { void processQuestion("书籍亮点"); }}
                   >
                     书籍亮点
                   </button>
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => {
-                      processQuestion("背景解读");
-                    }}
+                    onClick={() => { void processQuestion("背景解读"); }}
                   >
                     背景解读
                   </button>
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => {
-                      processQuestion("关键概念");
-                    }}
+                    onClick={() => { void processQuestion("关键概念"); }}
                   >
                     关键概念
                   </button>
@@ -149,7 +143,7 @@ export default function AiBookDialog({
                       placeholder={`针对《${bookTitle}》提出你的问题`}
                       className="w-full"
                       value={userInput}
-                      onChange={(e) => setUserInput(e.target.value)}
+                      onChange={(e) => { setUserInput(e.target.value); }}
                     />
                     <button type="submit">
                       <ArrowUp size={16} className="" />

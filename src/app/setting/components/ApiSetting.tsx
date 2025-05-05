@@ -29,11 +29,11 @@ export default function ApiSetting({
   useEffect(() => {
     if (onloadData) {
       if (hasUrl) {
-        setUrl(onloadData?.url || "");
-        setModel(onloadData?.model || "");
+        setUrl(onloadData.url ?? "");
+        setModel(onloadData.model ?? "");
       } else {
-        setModel(onloadData?.model || "");
-        setKey(onloadData?.key || "");
+        setModel(onloadData.model ?? "");
+        setKey(onloadData.key ?? "");
       }
     }
   }, [onloadData, hasUrl]);
@@ -58,9 +58,9 @@ export default function ApiSetting({
             onChange={(e) => setModel(e.target.value)}
           >
             <option>选择模型</option>
-            {modelOptions.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
+            {modelOptions.map((option) => {
+              return <option key={option}>{option}</option>
+})}
           </select>
         </div>
       )}

@@ -20,8 +20,12 @@ export default function SettingsPage() {
           setKimichatApi(settings.AiApiSetting.kimichat);
           setLocalApi(settings.AiApiSetting.local);
         }
-      } catch (error) {
-        console.error("加载设置失败:", error);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("加载设置失败:", error.message);
+        } else {
+          console.error("加载设置失败:", error);
+        }
       }
     };
     fetchSettings().catch((error) => {
@@ -41,8 +45,12 @@ export default function SettingsPage() {
       // 3. 调用 updateSetting 更新配置
       await updateSetting(newAiSettings);
       console.log("DeepSeek 设置已保存:", data);
-    } catch (error) {
-      console.error("保存失败:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("保存失败:", error.message);
+      } else {
+        console.error("保存失败:", error);
+      }
     }
   };
 
@@ -57,8 +65,12 @@ export default function SettingsPage() {
       // 3. 调用 updateSetting 更新配置
       await updateSetting(newAiSettings);
       console.log("DeepSeek 设置已保存:", data);
-    } catch (error) {
-      console.error("保存失败:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("保存失败:", error.message);
+      } else {
+        console.error("保存失败:", error);
+      }
     }
   };
 
@@ -98,7 +110,7 @@ export default function SettingsPage() {
               title="deepseek api 设置"
               modelOptions={["deepseek-r1", "deepseek-chat"]}
               keyPlaceholder="输入你的 deepseek API key"
-              onSave={handleDeepseekSave}
+              onSave={void handleDeepseekSave}
               onloadData={deepseekApi}
             />
             <ApiSetting
@@ -109,7 +121,7 @@ export default function SettingsPage() {
                 "moonshot-v1-128k",
               ]}
               keyPlaceholder="输入你的 kimichat API key"
-              onSave={handleKimichatSave}
+              onSave={void handleKimichatSave}
               onloadData={kimichatApi}
             />
             <ApiSetting
