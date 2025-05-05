@@ -2,12 +2,7 @@
 import React, { useEffect, useState } from "react";
 import ApiSetting from "./components/ApiSetting";
 import { AIApiSetting } from "@/types/aiApi";
-import {
-  loadSetting,
-  updateSetting,
-  type Setting,
-  type AiApiSettings,
-} from "@/utils/setting";
+import { loadSetting, updateSetting } from "@/utils/setting";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -29,7 +24,10 @@ export default function SettingsPage() {
         console.error("加载设置失败:", error);
       }
     };
-    fetchSettings();
+    fetchSettings().catch((error) => {
+      // 这里可以添加额外的错误处理逻辑
+      console.error("fetchSettings 函数出现错误:", error);
+    });
   }, []);
 
   // 处理 DeepSeek 保存
@@ -70,7 +68,9 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold mb-4">设置选项</h2>
         <div
           className={`mb-2 cursor-pointer ${activeSetting === "ai-api" ? "text-blue-500" : ""}`}
-          onClick={() => setActiveSetting("ai-api")}
+          onClick={() => {
+            setActiveSetting("ai-api");
+          }}
         >
           AI API 设置
         </div>
@@ -103,7 +103,11 @@ export default function SettingsPage() {
             />
             <ApiSetting
               title="kimichat api 设置"
-              modelOptions={["moonshot-v1-8k", "moonshot-v1-32k","moonshot-v1-128k"]}
+              modelOptions={[
+                "moonshot-v1-8k",
+                "moonshot-v1-32k",
+                "moonshot-v1-128k",
+              ]}
               keyPlaceholder="输入你的 kimichat API key"
               onSave={handleKimichatSave}
               onloadData={kimichatApi}

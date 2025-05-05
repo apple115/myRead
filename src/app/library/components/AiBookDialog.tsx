@@ -5,7 +5,7 @@ import { ArrowUp } from "lucide-react";
 import { loadEpubMetaData } from "@/utils/epub";
 import { askAIWithFile } from "@/utils/ai";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { loadAiDialog, saveAiDialog, updateAiDialog } from "@/utils/ai-dialog";
+import { loadAiDialog, saveAiDialog } from "@/utils/ai-dialog";
 import type { Message } from "@/utils/ai";
 import { getAiFileID } from "@/utils/ai";
 
@@ -48,8 +48,15 @@ export default function AiBookDialog({
   }
 
   useEffect(() => {
-    getMetaData();
-    getAiDialog();
+    const fetchData = async () => {
+      try{
+      await getMetaData();
+      await getAiDialog();
+      }catch(error){
+        console.log("fetchData",error)
+      }
+    };
+    fetchData()
   }, []);
 
   const [dialogs, setDialogs] = useState<Message[]>([]);

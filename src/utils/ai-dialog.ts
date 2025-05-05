@@ -69,7 +69,7 @@ async function updateAiDialog(
 ): Promise<void> {
   const currentMessages = await loadAiDialog(epubId);
   const updateMessages = _.merge({}, currentMessages, newMessages);
-  await saveAiDialog(epubId, updateMessages as Message[]);
+  await saveAiDialog(epubId, updateMessages);
 }
 
 async function deleteAiDialog(epubId: string): Promise<void> {

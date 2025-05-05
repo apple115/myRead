@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import { fetch } from "@tauri-apps/plugin-http";
-import { loadSetting, type AiApiSettings } from "./setting";
+import { loadSetting } from "./setting";
 import _ from "lodash";
 import { loadPersist, updatePersist } from "./persist";
 import { loadEpubData } from "./epub";
@@ -22,10 +22,10 @@ interface AIResponse {
   };
 }
 
-export type Message = {
+export interface Message {
   role: "system" | "user" | "assistant";
   content: string;
-};
+}
 
 // 系统消息列表
 const systemMessages: Message[] = [
@@ -69,10 +69,7 @@ async function createOpenAIInstance(model: string): Promise<OpenAI | null> {
  * @param n 保留的最新消息数量，默认为 20
  * @returns 包含系统消息和用户消息的消息列表
  */
-async function makeMessages(
-  prevMessages: Message[] = [],
-  n: number = 20,
-): Promise<Message[]> {
+function makeMessages(prevMessages: Message[] = [], n = 20): Message[] {
   const newMessages = [...prevMessages];
   return newMessages.length > n
     ? [...systemMessages, ...newMessages.slice(-n)]
@@ -130,7 +127,7 @@ async function callAIOnce(
     if (!openai) {
       throw new Error(`Failed to create OpenAI instance for ${model}`);
     }
-    const singleMessageList = await makeMessages([]);
+    const singleMessageList = makeMessages([]);
     const updatedMessageList = _.chain(singleMessageList)
       .concat(systemMessages, { role: "user", content: prompt })
       .value();
@@ -178,7 +175,7 @@ async function uploadFileAndGetId(
 /**
  * 使用文件内容向AI提问
  * @param fileId - 要发送的文件
- * @param prevMessages - 
+ * @param prevMessages -
  * @param question - 要问的问题
  * @returns 包含AI生成内容和用量的Promise
  * @throws 如果文件处理或API调用失败

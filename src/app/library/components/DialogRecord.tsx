@@ -1,7 +1,6 @@
 import React from "react";
-import Markdown, { MarkdownAsync, MarkdownHooks } from "react-markdown";
+import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import remarkMermaid from "remark-mermaidjs";
 
 import type { Message } from "@/utils/ai";
 

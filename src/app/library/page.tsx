@@ -11,15 +11,15 @@ import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
 import Link from "next/link";
 
-type LoadingState = {
+interface LoadingState {
   books: boolean;
   mindMap: boolean;
-};
+}
 
-type ErrorState = {
+interface ErrorState {
   books: string | null;
   mindMap: string | null;
-};
+}
 
 export default function LibraryPage() {
   const [books, setBooks] = useState<EpubMetaData[]>([]);
@@ -59,7 +59,6 @@ export default function LibraryPage() {
     }
   };
 
-
   const handleDeleteBook = async (bookId: string) => {
     try {
       await deleteEpubData(bookId);
@@ -71,7 +70,6 @@ export default function LibraryPage() {
       throw error;
     }
   };
-
 
   return (
     <div>
@@ -107,10 +105,7 @@ export default function LibraryPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {books.length > 0 ? (
                 books.map((book) => (
-                  <BookCard
-                    book={book}
-                    onDelete={handleDeleteBook}
-                  />
+                  <BookCard book={book} onDelete={handleDeleteBook} />
                 ))
               ) : (
                 <div className="col-span-full text-center text-gray-500 py-8">

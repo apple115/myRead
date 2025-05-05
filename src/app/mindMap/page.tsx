@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -12,14 +12,15 @@ import { getAiFileID, askAIWithFile } from "@/utils/ai";
 import { ArrowLeft, Send } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-
 export default function MindMapPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [userInput, setUserInput] = useState<string>();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [bookId, setBookId] = useState<string>(searchParams.get("bookId") || "");
+  const [bookId, setBookId] = useState<string>(
+    searchParams.get("bookId") ?? "",
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const extractJsonFromMarkdown = (markdown: string): string => {
@@ -70,8 +71,8 @@ export default function MindMapPage() {
 3. edges的id格式为'e' + source + '-' + target
 4. 思维导图要简洁清晰，总节点数不超过20个
 5. 思维导图的节点和边要符合JSON格式
-6. ${userInput ? `用户期望的思维导图主题是：${userInput}，请围绕这个主题展开` : '请围绕书籍核心内容展开'}`;
-        
+6. ${userInput ? `用户期望的思维导图主题是：${userInput}，请围绕这个主题展开` : "请围绕书籍核心内容展开"}`;
+
         const response = await askAIWithFile(aiFileId, [], question);
         console.log("response", response);
         if (!response?.content) {
@@ -152,11 +153,11 @@ export default function MindMapPage() {
           onEdgesChange={onEdgesChange}
           fitView
           defaultEdgeOptions={{
-            type: 'smoothstep',
+            type: "smoothstep",
           }}
         >
           <Background />
-          <Controls/>
+          <Controls />
           <MiniMap />
         </ReactFlow>
       </div>

@@ -7,7 +7,6 @@ import type { EpubMetaData } from "@/utils/epub";
 interface EpubUploaderProps {
   onUploadSuccess: (meta: EpubMetaData | null) => void;
   onUploadError?: (error: Error) => void;
-  id?: string;
   className?: string;
 }
 
@@ -16,7 +15,6 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 export function EpubUploader({
   onUploadSuccess,
   onUploadError,
-  id,
   className,
 }: EpubUploaderProps) {
   const [loading, setLoading] = useState(false);
@@ -24,7 +22,6 @@ export function EpubUploader({
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File) => {
@@ -89,24 +86,6 @@ export function EpubUploader({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
     if (file) {
       handleFileUpload(file);
     }
