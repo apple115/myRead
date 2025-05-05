@@ -49,14 +49,16 @@ export default function AiBookDialog({
 
   useEffect(() => {
     const fetchData = async () => {
-      try{
-      await getMetaData();
-      await getAiDialog();
-      }catch(error){
-        console.log("fetchData",error)
+      try {
+        await getMetaData();
+        await getAiDialog();
+      } catch (error) {
+        console.log("fetchData", error);
       }
     };
-    fetchData()
+    fetchData().catch((error) => {
+      console.error("fetchData", error);
+    });
   }, []);
 
   const [dialogs, setDialogs] = useState<Message[]>([]);
@@ -93,7 +95,9 @@ export default function AiBookDialog({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    processQuestion(userInput);
+    processQuestion(userInput).catch((error) => {
+      console.error("log", error);
+    });
   };
 
   return (
@@ -113,19 +117,25 @@ export default function AiBookDialog({
                 <div className="flex space-x-4 m-2">
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => processQuestion("书籍亮点")}
+                    onClick={() => {
+                      processQuestion("书籍亮点");
+                    }}
                   >
                     书籍亮点
                   </button>
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => processQuestion("背景解读")}
+                    onClick={() => {
+                      processQuestion("背景解读");
+                    }}
                   >
                     背景解读
                   </button>
                   <button
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => processQuestion("关键概念")}
+                    onClick={() => {
+                      processQuestion("关键概念");
+                    }}
                   >
                     关键概念
                   </button>

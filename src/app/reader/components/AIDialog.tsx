@@ -17,7 +17,7 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
-  const handleSubmit = async () => {
+  const askAI = async () => {
     setIsLoading(true);
     try {
       const usertext = `input,对于这段话${text}`;
@@ -29,6 +29,12 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = () => {
+    askAI().catch((error) => {
+      console.error("askAI", error);
+    });
   };
 
   return (
@@ -52,7 +58,9 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
                 <input
                   type="text"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                  }}
                   placeholder="请输入问题"
                   className=" p-2 w-full"
                 />

@@ -12,6 +12,28 @@ import { getAiFileID, askAIWithFile } from "@/utils/ai";
 import { ArrowLeft, Send } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 
+interface MindMapNode {
+  id: string;
+  data: {
+    label: string;
+  };
+  position: {
+    x: number;
+    y: number;
+  };
+}
+
+interface MindMapEdge {
+  id: string;
+  source: string;
+  target: string;
+}
+
+interface MindMapData {
+  nodes: MindMapNode[];
+  edges: MindMapEdge[];
+}
+
 export default function MindMapPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -24,7 +46,8 @@ export default function MindMapPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const extractJsonFromMarkdown = (markdown: string): string => {
-    const match = markdown.match(/```json\n([\s\S]*?)\n```/);
+    const regex = /```json\n([\s\S]*?)\n```/;
+    const match = regex.exec(markdown);
     if (!match) {
       throw new Error("未找到有效的 JSON 代码块");
     }
@@ -83,7 +106,7 @@ export default function MindMapPage() {
           const jsonStr = extractJsonFromMarkdown(response.content);
           const cleanJson = jsonStr.replace(/\\"/g, '"');
           console.log("cleanJson", cleanJson);
-          const data = JSON.parse(cleanJson);
+          const data = JSON.parse(cleanJson) as MindMapData;
           setNodes(data.nodes);
           setEdges(data.edges);
         } catch (error) {
@@ -103,7 +126,9 @@ export default function MindMapPage() {
       <div className="flex justify-between items-center p-4 bg-white border-b shadow-sm">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              router.back();
+            }}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             title="返回"
           >
@@ -121,16 +146,22 @@ export default function MindMapPage() {
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             placeholder="输入书籍ID"
             value={bookId}
-            onChange={(e) => setBookId(e.target.value)}
+            onChange={(e) => {
+              setBookId(e.target.value);
+            }}
           />
           <input
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+            }}
             placeholder="输入您想要的思维导图主题（可选）"
           />
           <button
-            onClick={() => generateMindMap(bookId)}
+            onClick={() => {
+              generateMindMap(bookId);
+            }}
             disabled={isLoading}
             className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-all ${
               isLoading

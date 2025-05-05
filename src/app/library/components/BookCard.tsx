@@ -9,10 +9,7 @@ interface BookCardProps {
   onDelete: (bookId: string) => Promise<void>;
 }
 
-export default function BookCard({
-  book,
-  onDelete,
-}: BookCardProps) {
+export default function BookCard({ book, onDelete }: BookCardProps) {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [openAiBookDialog, setOpenAiBookDialog] = useState(false);
 
@@ -26,7 +23,9 @@ export default function BookCard({
         setCoverUrl(null);
       }
     };
-    loadCover();
+    loadCover().catch((error) => {
+      console.error("loadCover:", error);
+    });
   }, [book.hash]);
 
   return (
@@ -93,7 +92,7 @@ export default function BookCard({
               生成思维导图
             </Link>
             <ContextMenu.Item
-              onClick={(e) => {
+              onClick={() => {
                 setOpenAiBookDialog(true);
               }}
               className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
@@ -101,9 +100,11 @@ export default function BookCard({
               对话书本
             </ContextMenu.Item>
             <button
-              onClick={async (e) => {
+              onClick={(e) => {
                 e.stopPropagation();
-                onDelete(book.hash);
+                async () => {
+                  await onDelete(book.hash);
+                };
               }}
               className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
             >

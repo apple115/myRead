@@ -1,5 +1,5 @@
 import { ReactReader } from "react-reader";
-import type { Rendition, Contents } from "epubjs";
+import type { Rendition } from "epubjs";
 
 interface EpubReaderContainerProps {
   epubFileUrl: string;
@@ -12,7 +12,7 @@ export function EpubReaderContainer({
   location,
   onLocationChange,
   onRenditionChange,
-  epubFileUrl
+  epubFileUrl,
 }: EpubReaderContainerProps) {
   return (
     <div className="mt-4 h-[80vh] border rounded-lg overflow-hidden">

@@ -49,7 +49,9 @@ export default function LibraryPage() {
       }
     };
 
-    loadBooks();
+    loadBooks().catch((error) => {
+      console.error("loadBooks", error);
+    });
   }, []);
 
   const handleUploadSuccess = (meta: EpubMetaData | null) => {
@@ -105,7 +107,11 @@ export default function LibraryPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {books.length > 0 ? (
                 books.map((book) => (
-                  <BookCard book={book} onDelete={handleDeleteBook} />
+                  <BookCard
+                    key={book.hash}
+                    book={book}
+                    onDelete={handleDeleteBook}
+                  />
                 ))
               ) : (
                 <div className="col-span-full text-center text-gray-500 py-8">

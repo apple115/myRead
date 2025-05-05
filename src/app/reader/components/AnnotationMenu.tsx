@@ -1,7 +1,5 @@
 import type { ITextSelection } from "@/types/annotation";
 import type { Rendition, Contents } from "epubjs";
-import { NoteInput } from "./NoteInput";
-import { useState } from "react";
 
 interface AnnotationMenuProps {
   /** EPUB内容对象 */
@@ -10,8 +8,6 @@ interface AnnotationMenuProps {
   position: { x: number; y: number } | null;
   /** 关闭菜单回调 */
   onClose: () => void;
-  /** 调用AI解释文本的回调 */
-  onAskAI: (text: string) => void;
   /** 当前选中的文本内容 */
   selection: ITextSelection;
   /** EPUB渲染对象 */
@@ -46,7 +42,6 @@ function MenuItem({
 export function AnnotationMenu({
   position,
   onClose,
-  onAskAI,
   selection,
   rendition,
   onAddAnnotation,
@@ -66,7 +61,9 @@ export function AnnotationMenu({
       >
         <MenuItem
           onClick={() => {
-            navigator.clipboard.writeText(selection.text || "");
+            async () => {
+              navigator.clipboard.writeText(selection.text ?? "");
+            };
             onClose();
           }}
         >
@@ -87,7 +84,7 @@ export function AnnotationMenu({
             rendition?.annotations.highlight(
               selection.cfiRange,
               {},
-              (e: MouseEvent) => {
+              () => {
                 handlehighlightClick(selection, rendition);
               },
               "highlight",
@@ -111,7 +108,7 @@ export function AnnotationMenu({
             rendition?.annotations.highlight(
               selection.cfiRange,
               {},
-              (e: MouseEvent) => {
+              () => {
                 handlehighlightClick(selection, rendition);
               },
               "underline",
@@ -139,7 +136,7 @@ export function AnnotationMenu({
             rendition?.annotations.underline(
               selection.cfiRange,
               {},
-              (e: MouseEvent) => {
+              () => {
                 handlehighlightClick(selection, rendition);
               },
               "underline",

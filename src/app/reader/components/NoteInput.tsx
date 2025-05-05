@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { Rendition } from "epubjs";
 
 interface NoteInputProps {
-  rendition: Rendition|null;
+  rendition: Rendition | null;
   selection: ITextSelection;
   /**
    * 初始选中的文本内容，会显示在笔记输入框上方
@@ -43,8 +43,8 @@ export function NoteInput({
         rendition.annotations.highlight(
           selection.cfiRange,
           {},
-          (e: MouseEvent) => {
-            handlehighlightClick(selection,rendition)
+          () => {
+            handlehighlightClick(selection, rendition);
           },
           "underline",
           {
@@ -79,7 +79,9 @@ export function NoteInput({
         <textarea
           className="w-full border rounded p-2 mb-4 h-32"
           value={note}
-          onChange={(e) => setNote(e.target.value)}
+          onChange={(e) => {
+            setNote(e.target.value);
+          }}
           placeholder="输入你的想法..."
           autoFocus
         />
@@ -92,7 +94,9 @@ export function NoteInput({
           </button>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={() => handleSave()}
+            onClick={() => {
+              handleSave();
+            }}
           >
             保存
           </button>

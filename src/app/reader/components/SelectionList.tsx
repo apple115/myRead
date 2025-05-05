@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Rendition } from "epubjs";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -57,14 +57,18 @@ export function SelectionList({
             {confirmDeleteIndex === i ? (
               <div className="flex gap-1">
                 <button
-                  onClick={() => handleRemove(i, cfiRange)}
+                  onClick={() => {
+                    handleRemove(i, cfiRange);
+                  }}
                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                   title="确认删除"
                 >
                   <Check size={16} />
                 </button>
                 <button
-                  onClick={() => setConfirmDeleteIndex(null)}
+                  onClick={() => {
+                    setConfirmDeleteIndex(null);
+                  }}
                   className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                   title="取消"
                 >
@@ -74,14 +78,20 @@ export function SelectionList({
             ) : (
               <div className="flex gap-1">
                 <button
-                  onClick={() => rendition?.display(cfiRange)}
+                  onClick={() => {
+                    async () => {
+                      rendition?.display(cfiRange);
+                    };
+                  }}
                   className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                   title="跳转到位置"
                 >
                   <Eye size={16} />
                 </button>
                 <button
-                  onClick={() => handleRemove(i, cfiRange)}
+                  onClick={() => {
+                    handleRemove(i, cfiRange);
+                  }}
                   className="p-1 text-gray-600 hover:bg-red-50 rounded"
                   title="删除批注"
                 >

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SelectionList } from "@/app/reader/components/SelectionList";
 import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/app/reader/components/EpubMetaInfo";
@@ -8,7 +8,7 @@ import { callAI } from "@/utils/ai";
 import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
 import { Contents, type Rendition } from "epubjs";
-import type { ITextSelection, TextType } from "@/types/annotation";
+import type { ITextSelection } from "@/types/annotation";
 import Link from "next/link";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
@@ -30,9 +30,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   } | null>(null);
   const [selection, setSelection] = useState<ITextSelection | null>(null);
   const [showDrawer, setShowDrawer] = useState(false);
-  const [isAIDialogOpen, setAIDialogOpen] = useState(false);
-  const [isAILoading, setAILoading] = useState(false);
-  const [aiResponse, setAIResponse] = useState("");
   const [contents, setContents] = useState<Contents | null>(null);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAIInputOutput, setShowAIInputOutput] = useState(false);
@@ -86,7 +83,9 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
         setEpubFileUrl(convertFileSrc(fullPath));
       }
-      loadSavedPersist();
+      loadSavedPersist().catch((error) => {
+        console.error("loadSavedPersist", error);
+      });
     } catch (error) {
       console.error("Failed to convert EPUB to URL", error);
       alert("Failed to load EPUB file");
@@ -132,7 +131,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             annotation.type,
             annotation.cfiRange,
             {},
-            (e: MouseEvent) => {
+            () => {
               handleTextSelection(annotation, rendition);
             },
             "hl",
