@@ -2,8 +2,6 @@
 use epub::doc::EpubDoc;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
-mod ai;
-mod ai_file;
 
 #[derive(serde::Serialize)]
 struct EpubMeta {

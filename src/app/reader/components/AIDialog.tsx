@@ -32,7 +32,7 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
   };
 
   const handleSubmit = () => {
-    askAI().catch((error) => {
+    askAI().catch((error:unknown) => {
       console.error("askAI", error);
     });
   };

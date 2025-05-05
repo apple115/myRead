@@ -38,7 +38,7 @@ export function EpubUploader({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setToastMessage(`文件大小不能超过 ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+      setToastMessage(`文件大小不能超过 ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB`);
       setToastType("error");
       setToastOpen(true);
       return false;
@@ -56,7 +56,7 @@ export function EpubUploader({
 
       try {
         const progressInterval = setInterval(() => {
-          setProgress((prev) => Math.min(prev + 10, 90));
+          setProgress((prev) => { return Math.min(prev + 10, 90); });
         }, 200);
 
         const epubId = await saveEpubData(file);
@@ -92,7 +92,7 @@ export function EpubUploader({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleFileUpload(file);
+      handleFileUpload(file).catch(console.error);
     }
   };
 
@@ -107,7 +107,7 @@ export function EpubUploader({
         disabled={loading}
         className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
           loading ? "opacity-50 cursor-not-allowed" : ""
-        } ${className}`}
+        } ${className ?? ""}`}
       >
         {loading ? (
           <>

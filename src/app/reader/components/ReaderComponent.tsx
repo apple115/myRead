@@ -217,25 +217,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             const selection = contents?.window.getSelection();
             selection?.removeAllRanges();
           }}
-          onAskAI={async (text) => {
-            try {
-              if (!text.trim()) {
-                alert("请先选择一些文本");
-                return;
-              }
-              setAIDialogOpen(true);
-              setAILoading(true);
-              setAIResponse("");
-              const response = await callAI(`请解释这段话的含义: ${text}`);
-              if (response != null) {
-                setAIResponse(response.content);
-              }
-            } catch (error) {
-              setAIResponse("AI请求失败，请稍后再试");
-            } finally {
-              setAILoading(false);
-            }
-          }}
           selection={selection!}
           rendition={rendition}
           onAddAnnotation={(annotation) => {
@@ -263,7 +244,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         <NoteInput
           selection={selection}
           rendition={rendition}
-          initialText={selection.text || ""}
+          initialText={selection.text ?? ""}
           onAddAnnotation={(annotation) => {
             setSelections((list) => list.concat(annotation));
           }}
@@ -272,7 +253,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         />
       )}
       <AIInputOutput
-        text={selection?.text || ""}
+        text={selection?.text ?? ""}
         isOpen={showAIInputOutput}
         setIsOpen={setShowAIInputOutput}
       />

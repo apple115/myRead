@@ -28,7 +28,7 @@ export default function SettingsPage() {
         }
       }
     };
-    fetchSettings().catch((error) => {
+    fetchSettings().catch((error:unknown) => {
       // 这里可以添加额外的错误处理逻辑
       console.error("fetchSettings 函数出现错误:", error);
     });

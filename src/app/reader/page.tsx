@@ -15,6 +15,8 @@ export default function ReaderPage() {
         if (meta) {
           setMeta(meta);
         }
+      }).catch((error:unknown) => {
+        console.error("loadEpubMetaData", error);
       });
     }
   }, [bookId]);

@@ -56,7 +56,7 @@ export default function AiBookDialog({
         console.log("fetchData", error);
       }
     };
-    fetchData().catch((error) => {
+    fetchData().catch((error:unknown) => {
       console.error("fetchData", error);
     });
   }, []);
@@ -95,7 +95,7 @@ export default function AiBookDialog({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    processQuestion(userInput).catch((error) => {
+    processQuestion(userInput).catch((error:unknown) => {
       console.error("log", error);
     });
   };

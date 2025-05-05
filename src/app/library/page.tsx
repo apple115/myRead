@@ -49,7 +49,7 @@ export default function LibraryPage() {
       }
     };
 
-    loadBooks().catch((error) => {
+    loadBooks().catch((error:unknown) => {
       console.error("loadBooks", error);
     });
   }, []);
@@ -87,7 +87,6 @@ export default function LibraryPage() {
                 设置
               </Link>
               <EpubUploader
-                id="epub-upload"
                 onUploadSuccess={handleUploadSuccess}
               />
             </div>

@@ -23,7 +23,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
         setCoverUrl(null);
       }
     };
-    loadCover().catch((error) => {
+    loadCover().catch((error:unknown) => {
       console.error("loadCover:", error);
     });
   }, [book.hash]);
@@ -102,9 +102,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                async () => {
-                  await onDelete(book.hash);
-                };
+                onDelete(book.hash).catch(console.error);
               }}
               className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 text-left"
             >

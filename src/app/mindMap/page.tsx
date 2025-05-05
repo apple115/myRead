@@ -98,7 +98,7 @@ export default function MindMapPage() {
 
         const response = await askAIWithFile(aiFileId, [], question);
         console.log("response", response);
-        if (!response?.content) {
+        if (!response.content) {
           throw new Error("AI没有返回有效的内容");
         }
 
@@ -160,7 +160,7 @@ export default function MindMapPage() {
           />
           <button
             onClick={() => {
-              generateMindMap(bookId);
+              generateMindMap(bookId).catch(console.error);
             }}
             disabled={isLoading}
             className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-all ${

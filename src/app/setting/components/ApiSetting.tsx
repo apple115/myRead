@@ -30,9 +30,9 @@ export default function ApiSetting({
     if (onloadData) {
       if (hasUrl) {
         setUrl(onloadData.url ?? "");
-        setModel(onloadData.model ?? "");
+        setModel(onloadData.model);
       } else {
-        setModel(onloadData.model ?? "");
+        setModel(onloadData.model);
         setKey(onloadData.key ?? "");
       }
     }
@@ -55,7 +55,7 @@ export default function ApiSetting({
           <select
             className="w-full form-select"
             value={model}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={(e) => {setModel(e.target.value)}}
           >
             <option>选择模型</option>
             {modelOptions.map((option) => {
@@ -73,7 +73,7 @@ export default function ApiSetting({
               className="w-full form-input"
               placeholder="输入本地 API 地址"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {setUrl(e.target.value)}}
             />
           </div>
           <div>
@@ -83,7 +83,7 @@ export default function ApiSetting({
               className="w-full form-input"
               placeholder="输入本地模型名称"
               value={model}
-              onChange={(e) => setModel(e.target.value)}
+              onChange={(e) => {setModel(e.target.value)}}
             />
           </div>
         </>
@@ -95,7 +95,7 @@ export default function ApiSetting({
             className="w-full form-input"
             placeholder={keyPlaceholder}
             value={key}
-            onChange={(e) => setKey(e.target.value)}
+            onChange={(e) => {setKey(e.target.value)}}
           />
         </div>
       )}

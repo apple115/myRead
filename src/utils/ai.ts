@@ -119,7 +119,7 @@ async function callAI(
  */
 async function callAIOnce(
   prompt: string,
-  model: string = "deepseek-chat",
+  model= "deepseek-chat",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -151,7 +151,7 @@ async function callAIOnce(
 // 上传文件并获取文件ID
 async function uploadFileAndGetId(
   file: File,
-  model: string = "moonshot-v1-8k",
+  model = "moonshot-v1-8k",
 ): Promise<string | null> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -160,7 +160,7 @@ async function uploadFileAndGetId(
     }
     const fileObject = await openai.files.create({
       file,
-      //@ts-ignore
+      //@ts-expect-error
       purpose: "file-extract",
     });
     return fileObject.id;
@@ -182,7 +182,7 @@ async function askAIWithFile(
   fileId: string,
   prevMessages: Message[],
   question: string,
-  model: string = "moonshot-v1-128k",
+  model = "moonshot-v1-128k",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -203,7 +203,6 @@ async function askAIWithFile(
     console.log("messageList", updatedMessageList);
     const completion = await openai.chat.completions.create({
       model,
-      //@ts-ignore
       messages: updatedMessageList,
       temperature: 0.3,
       max_tokens: 4096,

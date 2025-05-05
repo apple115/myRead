@@ -79,9 +79,7 @@ export function SelectionList({
               <div className="flex gap-1">
                 <button
                   onClick={() => {
-                    async () => {
-                      rendition?.display(cfiRange);
-                    };
+                    rendition?.display(cfiRange).catch(console.error);
                   }}
                   className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                   title="跳转到位置"
