@@ -2,7 +2,7 @@ import AiBookDialog from "@/app/library/components/AiBookDialog";
 import { type EpubMetaData, getEpubImage } from "@/utils/epub";
 import Link from "next/link";
 import { ContextMenu } from "radix-ui";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface BookCardProps {
   book: EpubMetaData;
@@ -59,6 +59,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
                     xmlns="http://www.w3.org/2000/svg"
                     aria-label="封面加载失败"
                   >
+                    <title>封面加载失败</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

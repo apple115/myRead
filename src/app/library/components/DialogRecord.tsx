@@ -26,9 +26,12 @@ export default function DialogRecord({ dialogs }: DialogRecordProps) {
                 {dialog.role === "user" ? "你" : "AI"}:
               </strong>
               <div className="bg-gray-100 p-1 rounded">
-                <Markdown remarkPlugins={[remarkGfm]}>{dialog.content}</Markdown>
+                <Markdown remarkPlugins={[remarkGfm]}>
+                  {dialog.content}
+                </Markdown>
               </div>
-            </div>)
+            </div>
+          );
         })}
     </div>
   );

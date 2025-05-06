@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { saveAnnotations, loadAnnotations } from "@/utils/annotations";
 import type { ITextSelection } from "@/types/annotation";
+import { loadAnnotations, saveAnnotations } from "@/utils/annotations";
+import { useCallback } from "react";
 
 export function useAnnotations() {
   const save = useCallback(

@@ -1,4 +1,3 @@
-
 export interface Reader {
   bookId: string;
   initialMeta: {

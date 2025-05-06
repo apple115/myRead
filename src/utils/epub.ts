@@ -1,17 +1,17 @@
 import { invoke } from "@tauri-apps/api/core";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
 import {
   BaseDirectory,
+  exists,
   mkdir,
+  readDir,
   readFile,
   readTextFile,
+  remove,
   writeFile,
   writeTextFile,
-  readDir,
-  remove,
-  exists,
 } from "@tauri-apps/plugin-fs";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 // ${appData}
 // ├── epub-reader-data/
@@ -153,7 +153,7 @@ async function loadEpubMetaData(epubId: string): Promise<EpubMetaData | null> {
 async function getAllEpubMetaData(): Promise<EpubMetaData[]> {
   try {
     // 获取metadata目录路径
-    const metadataDir = `epub-reader-data/metadata`;
+    const metadataDir = "epub-reader-data/metadata";
 
     // 读取metadata目录下的所有文件
     const files = await readDir(metadataDir, {

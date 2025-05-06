@@ -1,8 +1,8 @@
-import { useState } from "react";
-import type { Rendition } from "epubjs";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import { Trash2, Eye, Check, X } from "lucide-react";
+import type { Rendition } from "epubjs";
+import { Check, Eye, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 interface Selection {
   text: string | null;
@@ -57,20 +57,34 @@ export function SelectionList({
             {confirmDeleteIndex === i ? (
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => {
                     handleRemove(i, cfiRange);
                   }}
                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                   title="确认删除"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      handleRemove(i, cfiRange);
+                    }
+                  }}
                 >
                   <Check size={16} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setConfirmDeleteIndex(null);
                   }}
                   className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                   title="取消"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      setConfirmDeleteIndex(null);
+                    }
+                  }}
                 >
                   <X size={16} />
                 </button>
@@ -78,20 +92,34 @@ export function SelectionList({
             ) : (
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => {
                     rendition?.display(cfiRange).catch(console.error);
                   }}
                   className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                   title="跳转到位置"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      rendition?.display(cfiRange).catch(console.error);
+                    }
+                  }}
                 >
                   <Eye size={16} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     handleRemove(i, cfiRange);
                   }}
                   className="p-1 text-gray-600 hover:bg-red-50 rounded"
                   title="删除批注"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      handleRemove(i, cfiRange);
+                    }
+                  }}
                 >
                   <Trash2 size={16} />
                 </button>

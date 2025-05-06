@@ -1,6 +1,6 @@
-import { ITextSelection } from "@/types/annotation";
-import { useState } from "react";
+import type { ITextSelection } from "@/types/annotation";
 import type { Rendition } from "epubjs";
+import { useState } from "react";
 
 interface NoteInputProps {
   rendition: Rendition | null;
@@ -67,8 +67,15 @@ export function NoteInput({
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">写想法</h3>
           <button
+            type="button"
             onClick={handeCancel}
             className="text-gray-500 hover:text-gray-700"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "Escape") {
+                handeCancel();
+              }
+            }}
           >
             &times;
           </button>
@@ -83,19 +90,32 @@ export function NoteInput({
             setNote(e.target.value);
           }}
           placeholder="输入你的想法..."
-          autoFocus
         />
         <div className="flex justify-end gap-2">
           <button
+            type="button"
             className="px-4 py-2 border rounded hover:bg-gray-100"
             onClick={handeCancel}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "Escape") {
+                handeCancel();
+              }
+            }}
           >
             取消
           </button>
           <button
+            type="button"
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             onClick={() => {
               handleSave();
+            }}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === "Escape") {
+                handleSave();
+              }
             }}
           >
             保存

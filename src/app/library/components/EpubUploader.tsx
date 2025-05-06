@@ -1,13 +1,13 @@
 "use client";
-import { useCallback, useState, useRef } from "react";
 import {
-  saveEpubData,
   getEpubMetadate,
-  saveEpubMetaData,
+  saveEpubData,
   saveEpubImage,
+  saveEpubMetaData,
 } from "@/utils/epub";
-import { Toast } from "radix-ui";
 import type { EpubMetaData } from "@/utils/epub";
+import { Toast } from "radix-ui";
+import { useRef, useState } from "react";
 
 interface EpubUploaderProps {
   onUploadSuccess: (meta: EpubMetaData | null) => void;
@@ -38,7 +38,9 @@ export function EpubUploader({
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setToastMessage(`文件大小不能超过 ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB`);
+      setToastMessage(
+        `文件大小不能超过 ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB`,
+      );
       setToastType("error");
       setToastOpen(true);
       return false;
@@ -47,49 +49,48 @@ export function EpubUploader({
     return true;
   };
 
-  const handleFileUpload = useCallback(
-    async (file: File) => {
-      if (!validateFile(file)) return;
+  const handleFileUpload = async (file: File) => {
+    if (!validateFile(file)) return;
 
-      setLoading(true);
-      setProgress(0);
+    setLoading(true);
+    setProgress(0);
 
-      try {
-        const progressInterval = setInterval(() => {
-          setProgress((prev) => { return Math.min(prev + 10, 90); });
-        }, 200);
+    try {
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          return Math.min(prev + 10, 90);
+        });
+      }, 200);
 
-        const epubId = await saveEpubData(file);
-        clearInterval(progressInterval);
-        setProgress(100);
+      const epubId = await saveEpubData(file);
+      clearInterval(progressInterval);
+      setProgress(100);
 
-        const meta = await getEpubMetadate(epubId);
-        if (meta) {
-          meta.hash = epubId;
-          await saveEpubMetaData(epubId, meta);
-          await saveEpubImage(epubId);
-          onUploadSuccess(meta);
-          setToastMessage(`${meta.title} 上传成功`);
-          setToastType("success");
-          setToastOpen(true);
-        } else {
-          throw new Error("Failed to process EPUB");
-        }
-      } catch (error) {
-        console.error("Failed to process EPUB:", error);
-        setToastMessage("文件上传失败，请重试");
-        setToastType("error");
+      const meta = await getEpubMetadate(epubId);
+      if (meta) {
+        meta.hash = epubId;
+        await saveEpubMetaData(epubId, meta);
+        await saveEpubImage(epubId);
+        onUploadSuccess(meta);
+        setToastMessage(`${meta.title} 上传成功`);
+        setToastType("success");
         setToastOpen(true);
-        onUploadError?.(error as Error);
-      } finally {
-        setLoading(false);
-        setTimeout(() => {
-          setProgress(0);
-        }, 1000);
+      } else {
+        throw new Error("Failed to process EPUB");
       }
-    },
-    [onUploadSuccess, onUploadError],
-  );
+    } catch (error) {
+      console.error("Failed to process EPUB:", error);
+      setToastMessage("文件上传失败，请重试");
+      setToastType("error");
+      setToastOpen(true);
+      onUploadError?.(error as Error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => {
+        setProgress(0);
+      }, 1000);
+    }
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -105,6 +106,7 @@ export function EpubUploader({
   return (
     <div className="flex gap-2">
       <button
+        type="button"
         onClick={handleClick}
         disabled={loading}
         className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
@@ -114,10 +116,12 @@ export function EpubUploader({
         {loading ? (
           <>
             <svg
+              role="img"
               className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
+              aria-label="上传中"
             >
               <circle
                 className="opacity-25"
@@ -126,22 +130,24 @@ export function EpubUploader({
                 r="10"
                 stroke="currentColor"
                 strokeWidth="4"
-              ></circle>
+              />
               <path
                 className="opacity-75"
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
+              />
             </svg>
             上传中 ({progress}%)
           </>
         ) : (
           <>
             <svg
+              role="img"
               className="-ml-1 mr-2 h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-label="上传EPUB"
             >
               <path
                 strokeLinecap="round"

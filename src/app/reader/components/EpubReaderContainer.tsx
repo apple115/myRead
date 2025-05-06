@@ -1,5 +1,5 @@
-import { ReactReader } from "react-reader";
 import type { Rendition } from "epubjs";
+import { ReactReader } from "react-reader";
 
 interface EpubReaderContainerProps {
   epubFileUrl: string;

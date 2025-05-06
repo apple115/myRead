@@ -6,7 +6,8 @@ import { loadEpubMetaData } from "@/utils/epub";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { ArrowUp } from "lucide-react";
 import { Dialog } from "radix-ui";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import DialogRecord from "./DialogRecord";
 
 interface AiBookDialogProps {
@@ -118,21 +119,27 @@ export default function AiBookDialog({
                   <button
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => { void processQuestion("书籍亮点"); }}
+                    onClick={() => {
+                      void processQuestion("书籍亮点");
+                    }}
                   >
                     书籍亮点
                   </button>
                   <button
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => { void processQuestion("背景解读"); }}
+                    onClick={() => {
+                      void processQuestion("背景解读");
+                    }}
                   >
                     背景解读
                   </button>
                   <button
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
-                    onClick={() => { void processQuestion("关键概念"); }}
+                    onClick={() => {
+                      void processQuestion("关键概念");
+                    }}
                   >
                     关键概念
                   </button>
@@ -146,7 +153,9 @@ export default function AiBookDialog({
                       placeholder={`针对《${bookTitle}》提出你的问题`}
                       className="w-full"
                       value={userInput}
-                      onChange={(e) => { setUserInput(e.target.value); }}
+                      onChange={(e) => {
+                        setUserInput(e.target.value);
+                      }}
                     />
                     <button type="submit">
                       <ArrowUp size={16} className="" />

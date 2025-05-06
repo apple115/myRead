@@ -1,10 +1,10 @@
-import { Dialog } from "radix-ui";
 import { callAIOnce } from "@/utils/ai";
+import { Dialog } from "radix-ui";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import React, { useState } from "react";
 import { ArrowUp } from "lucide-react";
+import React, { useState } from "react";
 
 interface AIInputOutputProps {
   text: string;
@@ -32,7 +32,7 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
   };
 
   const handleSubmit = () => {
-    askAI().catch((error:unknown) => {
+    askAI().catch((error: unknown) => {
       console.error("askAI", error);
     });
   };
@@ -46,7 +46,16 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
               <div className="flex justify-between items-center mb-4">
                 <Dialog.Close asChild>
-                  <button className="text-gray-500 hover:text-gray-700">
+                  <button
+                    className="text-gray-500 hover:text-gray-700"
+                    type="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === "Escape") {
+                        setIsOpen(false);
+                      }
+                    }}
+                  >
                     &times;
                   </button>
                 </Dialog.Close>
@@ -65,9 +74,16 @@ export function AIInputOutput({ text, isOpen, setIsOpen }: AIInputOutputProps) {
                   className=" p-2 w-full"
                 />
                 <button
+                  type="button"
                   onClick={handleSubmit}
                   disabled={isLoading || input === ""}
                   className="mr-2"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === "Escape") {
+                      handleSubmit();
+                    }
+                  }}
                 >
                   <ArrowUp size={16} className="" />
                 </button>

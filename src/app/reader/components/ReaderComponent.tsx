@@ -1,21 +1,21 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { SelectionList } from "@/app/reader/components/SelectionList";
 import { AnnotationMenu } from "@/app/reader/components/AnnotationMenu";
 import { EpubMetaInfo } from "@/app/reader/components/EpubMetaInfo";
 import { EpubReaderContainer } from "@/app/reader/components/EpubReaderContainer";
+import { SelectionList } from "@/app/reader/components/SelectionList";
 import { useAnnotations } from "@/app/reader/hooks/useAnnotations";
-import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
-import { Contents, type Rendition } from "epubjs";
 import type { ITextSelection } from "@/types/annotation";
-import Link from "next/link";
+import type { Reader } from "@/types/book";
+import type { Persist } from "@/utils/persist";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir } from "@tauri-apps/api/path";
-import { Reader } from "@/types/book";
+import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
+import type { Contents, Rendition } from "epubjs";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { usePersist } from "../hooks/usePersist";
-import { type Persist } from "@/utils/persist";
-import { NoteInput } from "./NoteInput";
 import { AIInputOutput } from "./AIDialog";
+import { NoteInput } from "./NoteInput";
 
 export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [epubFileUrl, setEpubFileUrl] = useState<string | null>(null);
@@ -37,17 +37,17 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     newSelection: ITextSelection,
     rendition: Rendition,
   ) => {
-      const range = rendition.getRange(newSelection.cfiRange);
-      const rects = range.getClientRects();
-      const readerContainer = document.querySelector(".epub-container");
-      if (readerContainer) {
-        const rect = readerContainer.getBoundingClientRect();
-        setMenuPosition({
-          x: rects[0].x + rect.x,
-          y: rects[0].y + rect.y,
-        });
-      }
-      setShowMenu(true);
+    const range = rendition.getRange(newSelection.cfiRange);
+    const rects = range.getClientRects();
+    const readerContainer = document.querySelector(".epub-container");
+    if (readerContainer) {
+      const rect = readerContainer.getBoundingClientRect();
+      setMenuPosition({
+        x: rects[0].x + rect.x,
+        y: rects[0].y + rect.y,
+      });
+    }
+    setShowMenu(true);
   };
 
   const handleSelectionEvent = (cfiRange: string, contents: Contents) => {
@@ -82,7 +82,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
         setEpubFileUrl(convertFileSrc(fullPath));
       }
-      loadSavedPersist().catch((error:unknown) => {
+      loadSavedPersist().catch((error: unknown) => {
         console.error("loadSavedPersist", error);
       });
     } catch (error) {

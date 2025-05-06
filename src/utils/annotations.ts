@@ -2,10 +2,10 @@ import {
   BaseDirectory,
   mkdir,
   readTextFile,
-  writeTextFile,
   remove,
+  writeTextFile,
 } from "@tauri-apps/plugin-fs";
-import { ITextSelection } from "../types/annotation";
+import type { ITextSelection } from "../types/annotation";
 
 // ${appData}
 // ├── epub-reader-data/
@@ -47,9 +47,7 @@ async function saveAnnotations(
 }
 
 // 加载注释
-async function loadAnnotations(
-  epubId: string,
-): Promise<ITextSelection[]> {
+async function loadAnnotations(epubId: string): Promise<ITextSelection[]> {
   await ensureAnnotationsDir();
   try {
     const filePath = `epub-reader-data/annotations/${epubId}.json`;

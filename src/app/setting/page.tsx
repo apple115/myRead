@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import ApiSetting from "./components/ApiSetting";
-import { AIApiSetting } from "@/types/aiApi";
+import type { AIApiSetting } from "@/types/aiApi";
 import { loadSetting, updateSetting } from "@/utils/setting";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import ApiSetting from "./components/ApiSetting";
 
 export default function SettingsPage() {
   const [activeSetting, setActiveSetting] = useState("ai-api"); // 初始显示 AI API 设置
@@ -28,7 +28,7 @@ export default function SettingsPage() {
         }
       }
     };
-    fetchSettings().catch((error:unknown) => {
+    fetchSettings().catch((error: unknown) => {
       // 这里可以添加额外的错误处理逻辑
       console.error("fetchSettings 函数出现错误:", error);
     });
@@ -82,6 +82,11 @@ export default function SettingsPage() {
           className={`mb-2 cursor-pointer ${activeSetting === "ai-api" ? "text-blue-500" : ""}`}
           onClick={() => {
             setActiveSetting("ai-api");
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              setActiveSetting("ai-api");
+            }
           }}
         >
           AI API 设置

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
 import type { AIApiSetting } from "@/types/aiApi";
+import React, { useEffect, useState } from "react";
 
 interface ApiSettingProps {
   title: string; // 标题
@@ -55,12 +55,14 @@ export default function ApiSetting({
           <select
             className="w-full form-select"
             value={model}
-            onChange={(e) => {setModel(e.target.value)}}
+            onChange={(e) => {
+              setModel(e.target.value);
+            }}
           >
             <option>选择模型</option>
             {modelOptions.map((option) => {
-              return <option key={option}>{option}</option>
-})}
+              return <option key={option}>{option}</option>;
+            })}
           </select>
         </div>
       )}
@@ -73,7 +75,9 @@ export default function ApiSetting({
               className="w-full form-input"
               placeholder="输入本地 API 地址"
               value={url}
-              onChange={(e) => {setUrl(e.target.value)}}
+              onChange={(e) => {
+                setUrl(e.target.value);
+              }}
             />
           </div>
           <div>
@@ -83,7 +87,9 @@ export default function ApiSetting({
               className="w-full form-input"
               placeholder="输入本地模型名称"
               value={model}
-              onChange={(e) => {setModel(e.target.value)}}
+              onChange={(e) => {
+                setModel(e.target.value);
+              }}
             />
           </div>
         </>
@@ -95,7 +101,9 @@ export default function ApiSetting({
             className="w-full form-input"
             placeholder={keyPlaceholder}
             value={key}
-            onChange={(e) => {setKey(e.target.value)}}
+            onChange={(e) => {
+              setKey(e.target.value);
+            }}
           />
         </div>
       )}

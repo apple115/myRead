@@ -8,9 +8,9 @@ import ReactFlow, {
   useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { getAiFileID, askAIWithFile } from "@/utils/ai";
+import { askAIWithFile, getAiFileID } from "@/utils/ai";
 import { ArrowLeft, Send } from "lucide-react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface MindMapNode {
   id: string;
@@ -126,6 +126,7 @@ export default function MindMapPage() {
       <div className="flex justify-between items-center p-4 bg-white border-b shadow-sm">
         <div className="flex items-center gap-4">
           <button
+            type="button"
             onClick={() => {
               router.back();
             }}
@@ -159,6 +160,7 @@ export default function MindMapPage() {
             placeholder="输入您想要的思维导图主题（可选）"
           />
           <button
+            type="button"
             onClick={() => {
               generateMindMap(bookId).catch(console.error);
             }}

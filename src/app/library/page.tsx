@@ -1,15 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
-import {
-  getAllEpubMetaData,
-  EpubMetaData,
-  deleteEpubData,
-  deleteEpubMetaData,
-  deleteEpubImage,
-} from "@/utils/epub";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
+import {
+  type EpubMetaData,
+  deleteEpubData,
+  deleteEpubImage,
+  deleteEpubMetaData,
+  getAllEpubMetaData,
+} from "@/utils/epub";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface LoadingState {
   books: boolean;
@@ -49,7 +49,7 @@ export default function LibraryPage() {
       }
     };
 
-    loadBooks().catch((error:unknown) => {
+    loadBooks().catch((error: unknown) => {
       console.error("loadBooks", error);
     });
   }, []);
@@ -86,15 +86,13 @@ export default function LibraryPage() {
               >
                 设置
               </Link>
-              <EpubUploader
-                onUploadSuccess={handleUploadSuccess}
-              />
+              <EpubUploader onUploadSuccess={handleUploadSuccess} />
             </div>
           </div>
         </div>
         {loading.books ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
           </div>
         ) : (
           <>

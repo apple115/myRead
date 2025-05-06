@@ -1,5 +1,5 @@
 import type { ITextSelection } from "@/types/annotation";
-import type { Rendition, Contents } from "epubjs";
+import type { Contents, Rendition } from "epubjs";
 
 interface AnnotationMenuProps {
   /** EPUB内容对象 */
@@ -29,10 +29,18 @@ function MenuItem({
   children: React.ReactNode;
   onClick?: () => void;
 }) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    // 检查按下的键是否为 Enter 键或 Space 键
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault(); // 防止默认行为，如滚动页面
+      onClick?.(); // 调用 onClick 处理函数
+    }
+  };
   return (
     <div
       className="px-3 py-1.5 text-sm hover:bg-gray-100 rounded cursor-pointer transition-colors"
       onClick={onClick}
+      onKeyDown={handleKeyDown}
     >
       {children}
     </div>
@@ -51,7 +59,15 @@ export function AnnotationMenu({
 }: AnnotationMenuProps) {
   if (!position) return null;
   return (
-    <div className="fixed inset-0 z-[9998]" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[9998]"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === "Escape") {
+          onClose();
+        }
+      }}
+    >
       <div
         className="absolute bg-white rounded-lg shadow-xl p-2 z-[9999] min-w-[160px]"
         style={{
@@ -61,7 +77,9 @@ export function AnnotationMenu({
       >
         <MenuItem
           onClick={() => {
-            navigator.clipboard.writeText(selection.text ?? "").catch(console.error)
+            navigator.clipboard
+              .writeText(selection.text ?? "")
+              .catch(console.error);
             onClose();
           }}
         >

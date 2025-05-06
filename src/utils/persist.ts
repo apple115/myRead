@@ -2,8 +2,8 @@ import {
   BaseDirectory,
   mkdir,
   readTextFile,
-  writeTextFile,
   remove,
+  writeTextFile,
 } from "@tauri-apps/plugin-fs";
 import _ from "lodash";
 
@@ -85,4 +85,4 @@ async function deletePersist(epubId: string): Promise<void> {
   }
 }
 
-export { savePersist, loadPersist, deletePersist,updatePersist };
+export { savePersist, loadPersist, deletePersist, updatePersist };

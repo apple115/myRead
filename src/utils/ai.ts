@@ -1,9 +1,9 @@
-import { OpenAI } from "openai";
 import { fetch } from "@tauri-apps/plugin-http";
-import { loadSetting } from "./setting";
 import _ from "lodash";
-import { loadPersist, updatePersist } from "./persist";
+import { OpenAI } from "openai";
 import { loadEpubData } from "./epub";
+import { loadPersist, updatePersist } from "./persist";
+import { loadSetting } from "./setting";
 
 const modelToUrlMap = {
   "deepseek-chat": "https://api.deepseek.com/v1",
@@ -44,7 +44,8 @@ const systemMessages: Message[] = [
 async function createOpenAIInstance(model: string): Promise<OpenAI | null> {
   try {
     const setting = await loadSetting();
-    const apiKey = setting?.AiApiSetting[
+    const apiKey =
+      setting?.AiApiSetting[
         model.includes("deepseek") ? "deepSeek" : "kimichat"
       ]?.key;
     if (!apiKey) {
@@ -119,7 +120,7 @@ async function callAI(
  */
 async function callAIOnce(
   prompt: string,
-  model= "deepseek-chat",
+  model = "deepseek-chat",
 ): Promise<AIResponse> {
   try {
     const openai = await createOpenAIInstance(model);
@@ -228,27 +229,26 @@ async function getAiFileID(bookId: string): Promise<string | null> {
     const persist = await loadPersist(bookId);
     if (persist?.aiFileId != null) {
       return persist.aiFileId;
-    } else {
-      const data = await loadEpubData(bookId);
-      if (!data) {
-        throw new Error("无法加载EPUB内容");
-      }
-
-      const blob = new Blob([data], { type: "application/epub+zip" });
-      const file = new File([blob], `${bookId}.epub`, {
-        type: "application/epub+zip",
-      });
-      const fileId = await uploadFileAndGetId(file);
-      if (fileId != null) {
-        const newPersistData = {
-          aiFileId: fileId,
-        };
-        await updatePersist(bookId, newPersistData);
-      } else {
-        throw new Error("fileId is null");
-      }
-      return fileId;
     }
+    const data = await loadEpubData(bookId);
+    if (!data) {
+      throw new Error("无法加载EPUB内容");
+    }
+
+    const blob = new Blob([data], { type: "application/epub+zip" });
+    const file = new File([blob], `${bookId}.epub`, {
+      type: "application/epub+zip",
+    });
+    const fileId = await uploadFileAndGetId(file);
+    if (fileId != null) {
+      const newPersistData = {
+        aiFileId: fileId,
+      };
+      await updatePersist(bookId, newPersistData);
+    } else {
+      throw new Error("fileId is null");
+    }
+    return fileId;
   } catch (error) {
     console.log("失败得到aifileId", error);
     return null;

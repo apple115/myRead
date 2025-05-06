@@ -1,5 +1,5 @@
+import { type Persist, loadPersist, savePersist } from "@/utils/persist";
 import { useCallback } from "react";
-import { savePersist, loadPersist, type Persist } from "@/utils/persist";
 
 export function usePersist() {
   const save = useCallback(async (bookId: string, persist: Persist) => {
