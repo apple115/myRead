@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import DialogRecord from "./DialogRecord";
-import { Dialog } from "radix-ui";
-import { ArrowUp } from "lucide-react";
-import { loadEpubMetaData } from "@/utils/epub";
 import { askAIWithFile } from "@/utils/ai";
-import { Cross2Icon } from "@radix-ui/react-icons";
-import { loadAiDialog, saveAiDialog } from "@/utils/ai-dialog";
 import type { Message } from "@/utils/ai";
 import { getAiFileID } from "@/utils/ai";
+import { loadAiDialog, saveAiDialog } from "@/utils/ai-dialog";
+import { loadEpubMetaData } from "@/utils/epub";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { ArrowUp } from "lucide-react";
+import { Dialog } from "radix-ui";
+import React, { useEffect, useState } from "react";
+import DialogRecord from "./DialogRecord";
 
 interface AiBookDialogProps {
   bookId: string;
@@ -28,7 +28,7 @@ export default function AiBookDialog({
 
   async function getMetaData() {
     try {
-      if (bookId.length == 0) {
+      if (bookId.length === 0) {
         throw new Error("bookId为空");
       }
       const meta = await loadEpubMetaData(bookId);
@@ -56,10 +56,10 @@ export default function AiBookDialog({
         console.log("fetchData", error);
       }
     };
-    fetchData().catch((error:unknown) => {
+    fetchData().catch((error: unknown) => {
       console.error("fetchData", error);
     });
-  }, []);
+  });
 
   const [dialogs, setDialogs] = useState<Message[]>([]);
 
@@ -95,7 +95,7 @@ export default function AiBookDialog({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    processQuestion(userInput).catch((error:unknown) => {
+    processQuestion(userInput).catch((error: unknown) => {
       console.error("log", error);
     });
   };
@@ -116,18 +116,21 @@ export default function AiBookDialog({
               <div className="w-full ">
                 <div className="flex space-x-4 m-2">
                   <button
+                    type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => { void processQuestion("书籍亮点"); }}
                   >
                     书籍亮点
                   </button>
                   <button
+                    type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => { void processQuestion("背景解读"); }}
                   >
                     背景解读
                   </button>
                   <button
+                    type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => { void processQuestion("关键概念"); }}
                   >
@@ -154,6 +157,7 @@ export default function AiBookDialog({
             </div>
             <Dialog.Close asChild>
               <button
+                type="button"
                 className="absolute right-2.5 top-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-full text-violet11 bg-gray3 hover:bg-violet4 focus:shadow-[0_0_0_2px] focus:shadow-violet7 focus:outline-none"
                 aria-label="Close"
               >

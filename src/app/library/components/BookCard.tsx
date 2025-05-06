@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { EpubMetaData, getEpubImage } from "@/utils/epub";
-import { useState, useEffect } from "react";
 import AiBookDialog from "@/app/library/components/AiBookDialog";
+import { type EpubMetaData, getEpubImage } from "@/utils/epub";
+import Link from "next/link";
 import { ContextMenu } from "radix-ui";
+import { useState, useEffect } from "react";
 
 interface BookCardProps {
   book: EpubMetaData;
@@ -23,7 +23,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
         setCoverUrl(null);
       }
     };
-    loadCover().catch((error:unknown) => {
+    loadCover().catch((error: unknown) => {
       console.error("loadCover:", error);
     });
   }, [book.hash]);
@@ -57,6 +57,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
+                    aria-label="封面加载失败"
                   >
                     <path
                       strokeLinecap="round"
@@ -100,6 +101,7 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
               对话书本
             </ContextMenu.Item>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(book.hash).catch(console.error);

@@ -1,9 +1,9 @@
-import { AIApiSetting } from "@/types/aiApi";
+import type { AIApiSetting } from "@/types/aiApi";
 import {
+  BaseDirectory,
+  mkdir,
   readTextFile,
   writeTextFile,
-  mkdir,
-  BaseDirectory,
 } from "@tauri-apps/plugin-fs";
 import _ from "lodash";
 
