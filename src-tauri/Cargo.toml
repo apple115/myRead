@@ -25,9 +25,9 @@ tauri-plugin-opener = "2"
 tauri-plugin-fs = "2"
 epub = "2.1.2"
 sha2 = "0.10"
-tokio = "1.44.1"
-reqwest = { version = "0.11", features = ["json"] }
-async-openai = "0.28.0"
+tokio = "1.44.2"
+reqwest = { version = "0.12", features = ["json"] }
+async-openai = "0.28.1"
 tauri-plugin-http = "2"
 
 [features]
