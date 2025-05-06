@@ -33,37 +33,40 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [showAIInputOutput, setShowAIInputOutput] = useState(false);
 
-  const handleTextSelection = (
-    newSelection: ITextSelection,
-    rendition: Rendition,
-  ) => {
-    const range = rendition.getRange(newSelection.cfiRange);
-    const rects = range.getClientRects();
-    const readerContainer = document.querySelector(".epub-container");
-    if (readerContainer) {
-      const rect = readerContainer.getBoundingClientRect();
-      setMenuPosition({
-        x: rects[0].x + rect.x,
-        y: rects[0].y + rect.y,
-      });
-    }
-    setShowMenu(true);
-  };
+  const handleTextSelection = useCallback(
+    (newSelection: ITextSelection, rendition: Rendition) => {
+      const range = rendition.getRange(newSelection.cfiRange);
+      const rects = range.getClientRects();
+      const readerContainer = document.querySelector(".epub-container");
+      if (readerContainer) {
+        const rect = readerContainer.getBoundingClientRect();
+        setMenuPosition({
+          x: rects[0].x + rect.x,
+          y: rects[0].y + rect.y,
+        });
+      }
+      setShowMenu(true);
+    },
+    [],
+  );
 
-  const handleSelectionEvent = (cfiRange: string, contents: Contents) => {
-    if (rendition) {
-      const newSelection: ITextSelection = {
-        text: rendition.getRange(cfiRange).toString(),
-        cfiRange,
-        createdAt: new Date(),
-        type: "highlight",
-        styles: {},
-      };
-      setContents(contents);
-      setSelection(newSelection);
-      handleTextSelection(newSelection, rendition);
-    }
-  };
+  const handleSelectionEvent = useCallback(
+    (cfiRange: string, contents: Contents) => {
+      if (rendition) {
+        const newSelection: ITextSelection = {
+          text: rendition.getRange(cfiRange).toString(),
+          cfiRange,
+          createdAt: new Date(),
+          type: "highlight",
+          styles: {},
+        };
+        setContents(contents);
+        setSelection(newSelection);
+        handleTextSelection(newSelection, rendition);
+      }
+    },
+    [rendition, handleTextSelection],
+  );
 
   useEffect(() => {
     if (rendition) {
@@ -72,7 +75,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         rendition.off("selected", handleSelectionEvent);
       };
     }
-  }, [rendition]);
+  }, [rendition, handleSelectionEvent]);
 
   const loadEpubFile = useCallback(async () => {
     try {
@@ -102,7 +105,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     } catch (error) {
       console.error("加载Persist失败:", error);
     }
-  }, [bookId]);
+  }, [bookId, loadPersist]);
 
   const saveCurrentPersist = useCallback(async () => {
     try {
@@ -114,7 +117,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     } catch (error) {
       console.error("存储Persist失败", error);
     }
-  }, [location]);
+  }, [location, bookId, savePersist]);
 
   const { saveAnnotations, loadAnnotations } = useAnnotations();
 
@@ -125,7 +128,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       setSelections(savedAnnotations);
       // 恢复高亮显示
       if (rendition) {
-        savedAnnotations.forEach((annotation) => {
+        for (const annotation of savedAnnotations) {
           rendition.annotations.add(
             annotation.type,
             annotation.cfiRange,
@@ -136,12 +139,12 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             "hl",
             annotation.styles,
           );
-        });
+        }
       }
     } catch (error) {
       console.error("加载注释失败:", error);
     }
-  }, [bookId, rendition, loadAnnotations]);
+  }, [bookId, rendition, loadAnnotations, handleTextSelection]);
 
   // 保存注释到文件
   const saveCurrentAnnotations = useCallback(async () => {
@@ -175,6 +178,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         <h1 className="text-2xl font-bold">EPUB Reader</h1>
         <div className="flex gap-4">
           <button
+            type="button"
             onClick={() => {
               saveCurrentPersist().catch(console.error);
             }}
@@ -182,6 +186,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
             保存
           </button>
           <button
+            type="button"
             onClick={() => {
               setShowDrawer(!showDrawer);
               setShowMenu(false);

@@ -51,8 +51,14 @@ export default function ApiSetting({
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
       {!hasUrl && (
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">{modelLabel}</label>
+          <label
+            htmlFor="model-select"
+            className="block text-sm font-medium mb-1"
+          >
+            {modelLabel}
+          </label>
           <select
+            id="model-select"
             className="w-full form-select"
             value={model}
             onChange={(e) => {
@@ -69,8 +75,14 @@ export default function ApiSetting({
       {hasUrl ? (
         <>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">url</label>
+            <label
+              htmlFor="url-input"
+              className="block text-sm font-medium mb-1"
+            >
+              url
+            </label>
             <input
+              id="url-input"
               type="text"
               className="w-full form-input"
               placeholder="输入本地 API 地址"
@@ -81,8 +93,14 @@ export default function ApiSetting({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">模型</label>
+            <label
+              htmlFor="model-input"
+              className="block text-sm font-medium mb-1"
+            >
+              模型
+            </label>
             <input
+              id="model-input"
               type="text"
               className="w-full form-input"
               placeholder="输入本地模型名称"
@@ -95,8 +113,11 @@ export default function ApiSetting({
         </>
       ) : (
         <div>
-          <label className="block text-sm font-medium mb-1">{keyLabel}</label>
+          <label htmlFor="key-input" className="block text-sm font-medium mb-1">
+            {keyLabel}
+          </label>
           <input
+            id="key-input"
             type="text"
             className="w-full form-input"
             placeholder={keyPlaceholder}
@@ -108,6 +129,7 @@ export default function ApiSetting({
         </div>
       )}
       <button
+        type="button"
         className="bg-blue-500 text-white px-4 py-2 mt-2 rounded"
         onClick={handleSave}
       >

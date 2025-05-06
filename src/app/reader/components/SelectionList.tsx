@@ -23,11 +23,11 @@ export function SelectionList({
   rendition,
   onRemove,
 }: SelectionListProps) {
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<string | null>(
     null,
   );
 
-  const handleRemove = (index: number, cfiRange: string) => {
+  const handleRemove = (index: string, cfiRange: string) => {
     if (confirmDeleteIndex === index) {
       onRemove(cfiRange);
       setConfirmDeleteIndex(null);
@@ -38,9 +38,9 @@ export function SelectionList({
 
   return (
     <div className="space-y-2">
-      {selections.map(({ text, cfiRange, createdAt, note }, i) => (
+      {selections.map(({ text, cfiRange, createdAt, note }) => (
         <div
-          key={i}
+          key={cfiRange}
           className="group relative p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
         >
           <div className="text-sm text-gray-600 mb-1">
@@ -54,19 +54,19 @@ export function SelectionList({
           )}
 
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            {confirmDeleteIndex === i ? (
+            {confirmDeleteIndex === cfiRange ? (
               <div className="flex gap-1">
                 <button
                   type="button"
                   onClick={() => {
-                    handleRemove(i, cfiRange);
+                    handleRemove(cfiRange, cfiRange);
                   }}
                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                   title="确认删除"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === "Escape") {
-                      handleRemove(i, cfiRange);
+                      handleRemove(cfiRange, cfiRange);
                     }
                   }}
                 >
@@ -110,14 +110,14 @@ export function SelectionList({
                 <button
                   type="button"
                   onClick={() => {
-                    handleRemove(i, cfiRange);
+                    handleRemove(cfiRange, cfiRange);
                   }}
                   className="p-1 text-gray-600 hover:bg-red-50 rounded"
                   title="删除批注"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === "Escape") {
-                      handleRemove(i, cfiRange);
+                      handleRemove(cfiRange, cfiRange);
                     }
                   }}
                 >
