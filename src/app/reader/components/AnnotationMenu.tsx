@@ -61,9 +61,7 @@ export function AnnotationMenu({
       >
         <MenuItem
           onClick={() => {
-            async () => {
-              await navigator.clipboard.writeText(selection.text ?? "");
-            };
+            navigator.clipboard.writeText(selection.text ?? "").catch(console.error)
             onClose();
           }}
         >

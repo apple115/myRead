@@ -37,7 +37,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     newSelection: ITextSelection,
     rendition: Rendition,
   ) => {
-    if (rendition) {
       const range = rendition.getRange(newSelection.cfiRange);
       const rects = range.getClientRects();
       const readerContainer = document.querySelector(".epub-container");
@@ -49,7 +48,6 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
         });
       }
       setShowMenu(true);
-    }
   };
 
   const handleSelectionEvent = (cfiRange: string, contents: Contents) => {
@@ -71,7 +69,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
     if (rendition) {
       rendition.on("selected", handleSelectionEvent);
       return () => {
-        rendition?.off("selected", handleSelectionEvent);
+        rendition.off("selected", handleSelectionEvent);
       };
     }
   }, [rendition]);
