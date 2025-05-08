@@ -60,46 +60,64 @@ export default function AiBookDialog({
     fetchData().catch((error: unknown) => {
       console.error("fetchData", error);
     });
-  });
+  }, [bookId]);
 
   const [dialogs, setDialogs] = useState<Message[]>([]);
 
   const [userInput, setUserInput] = useState("");
 
-  const processQuestion = async (content: string) => {
-    if (content.trim() === "") return;
-
-    const AiFileId = await getAiFileID(bookId);
-    // 生成 AI 回复（后续需要替换为实际 API 调用）
-    if (AiFileId != null) {
-      const aiReply = await askAIWithFile(AiFileId, dialogs, content);
-      const updatedDialogs = [
-        ...dialogs,
-        { role: "user" as const, content: content },
-        { role: "system" as const, content: aiReply.content },
-      ];
-      // 更新对话记录并清空输入
-      setDialogs(updatedDialogs);
-      await saveAiDialog(bookId, updatedDialogs);
-    } else {
-      const updatedDialogs = [
-        ...dialogs,
-        { role: "system" as const, content: "网络错误" },
-      ];
-      console.log("updatedDialogs", updatedDialogs);
-      // 更新对话记录并清空输入
-      setDialogs(updatedDialogs);
-      await saveAiDialog(bookId, updatedDialogs);
-    }
+  const handleUserInput = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const content = userInput.trim();
+    setUserDialog(content);
     setUserInput("");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    processQuestion(userInput).catch((error: unknown) => {
-      console.error("log", error);
-    });
+  const setUserDialog = (content: string) => {
+    if (content === "") return;
+    setDialogs((prev) => [
+      ...prev,
+      { role: "user" as const, content: content },
+    ]);
   };
+
+  useEffect(() => {
+    if (dialogs.length > 0) {
+      const lastMessage = dialogs[dialogs.length - 1];
+      if (lastMessage.role === "user") {
+        const sendRequestToAI = async () => {
+          const AiFileId = await getAiFileID(bookId);
+          if (AiFileId != null) {
+            const aiReply = await askAIWithFile(
+              AiFileId,
+              dialogs,
+              lastMessage.content,
+            );
+            setDialogs((prev) => [
+              ...prev,
+              { role: "system" as const, content: aiReply.content },
+            ]);
+            await saveAiDialog(bookId, [
+              ...dialogs,
+              { role: "system" as const, content: aiReply.content },
+            ]);
+          } else {
+            setDialogs((prev) => [
+              ...prev,
+              { role: "system" as const, content: "网络错误" },
+            ]);
+            await saveAiDialog(bookId, [
+              ...dialogs,
+              { role: "system" as const, content: "网络错误" },
+            ]);
+          }
+        };
+        sendRequestToAI().catch((error: unknown) => {
+          console.error("发送请求给 AI 出错:", error);
+        });
+      }
+    }
+  }, [dialogs, bookId]);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -120,7 +138,7 @@ export default function AiBookDialog({
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => {
-                      void processQuestion("书籍亮点");
+                      setUserDialog("书籍亮点");
                     }}
                   >
                     书籍亮点
@@ -129,7 +147,7 @@ export default function AiBookDialog({
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => {
-                      void processQuestion("背景解读");
+                      setUserDialog("背景解读");
                     }}
                   >
                     背景解读
@@ -138,14 +156,14 @@ export default function AiBookDialog({
                     type="button"
                     className="bg-gray-200 hover:bg-gray-300 text-sm font-medium py-1 px-2 rounded"
                     onClick={() => {
-                      void processQuestion("关键概念");
+                      setUserDialog("关键概念");
                     }}
                   >
                     关键概念
                   </button>
                 </div>
                 <form
-                  onSubmit={handleSubmit}
+                  onSubmit={handleUserInput}
                   className="p-2 border rounded w-full"
                 >
                   <div className="flex justify-between items-center ">
