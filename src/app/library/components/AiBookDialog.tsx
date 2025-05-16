@@ -7,7 +7,7 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { ArrowUp } from "lucide-react";
 import { Dialog } from "radix-ui";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DialogRecord from "./DialogRecord";
 
 interface AiBookDialogProps {
@@ -27,7 +27,7 @@ export default function AiBookDialog({
   //4 可以开始对话
   const [bookTitle, setBookTitle] = useState<string>("");
 
-  async function getMetaData() {
+  const getMetaData = useCallback(async () => {
     try {
       if (bookId.length === 0) {
         throw new Error("bookId为空");
@@ -39,14 +39,14 @@ export default function AiBookDialog({
     } catch (error) {
       console.error("json数据加载失败:", error);
     }
-  }
+  }, [bookId]);
 
-  async function getAiDialog() {
+  const getAiDialog = useCallback(async () => {
     const data = await loadAiDialog(bookId);
     if (data != null) {
       setDialogs(data);
     }
-  }
+  }, [bookId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +60,7 @@ export default function AiBookDialog({
     fetchData().catch((error: unknown) => {
       console.error("fetchData", error);
     });
-  }, [bookId]);
+  }, [getMetaData, getAiDialog]);
 
   const [dialogs, setDialogs] = useState<Message[]>([]);
 
