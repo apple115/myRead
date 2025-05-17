@@ -45,6 +45,7 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           y: rects[0].y + rect.y,
         });
       }
+      setSelection(newSelection);
       setShowMenu(true);
     },
     [],
@@ -227,10 +228,11 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           position={menuPosition}
           onClose={() => {
             setShowMenu(false);
+            // setSelection(null);
             const selection = contents?.window.getSelection();
             selection?.removeAllRanges();
           }}
-          selection={selection}
+          selection={selection} //选择的区域
           rendition={rendition}
           onAddAnnotation={(annotation) => {
             setSelections((list) => list.concat(annotation));
@@ -238,6 +240,14 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
           handlehighlightClick={handleTextSelection}
           setShowNoteInput={setShowNoteInput}
           setShowAIDialog={setShowAIInputOutput}
+          handleRemoveAnnotation={(annotation) => {
+            rendition?.annotations.remove(annotation.cfiRange, annotation.type);
+            setSelections(
+              selections.filter(
+                (item) => item.cfiRange !== annotation.cfiRange,
+              ),
+            );
+          }}
         />
       )}
       <div className="mt-4">
