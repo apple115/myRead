@@ -19,6 +19,9 @@ interface AnnotationMenuProps {
 
   setShowNoteInput: (show: boolean) => void;
   setShowAIDialog: (open: boolean) => void;
+
+  /** 删除标注的回调 */
+  handleRemoveAnnotation: (annotation: ITextSelection) => void;
 }
 
 // 菜单项组件
@@ -56,6 +59,7 @@ export function AnnotationMenu({
   handlehighlightClick,
   setShowNoteInput,
   setShowAIDialog,
+  handleRemoveAnnotation,
 }: AnnotationMenuProps) {
   if (!position) return null;
   return (
@@ -182,6 +186,14 @@ export function AnnotationMenu({
           }}
         >
           AI问书
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleRemoveAnnotation(selection);
+            onClose();
+          }}
+        >
+          删除
         </MenuItem>
       </div>
     </div>
