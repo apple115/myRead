@@ -41,7 +41,8 @@ export default function ReaderComponent({ bookId, initialMeta }: Reader) {
       if (readerContainer) {
         const rect = readerContainer.getBoundingClientRect();
         setMenuPosition({
-          x: rects[0].x + rect.x,
+          //除以这个宽度
+          x: (rects[0].x % readerContainer.clientWidth) + rect.x,
           y: rects[0].y + rect.y,
         });
       }
