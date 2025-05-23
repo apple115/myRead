@@ -3,6 +3,8 @@ import {
   mkdir,
   readTextFile,
   writeTextFile,
+  exists,
+  remove,
 } from "@tauri-apps/plugin-fs";
 import _ from "lodash";
 import type { Message } from "./ai";
@@ -53,10 +55,14 @@ async function loadAiDialog(epubId: string): Promise<Message[] | null> {
   await ensureAiDialogDir();
   try {
     const filePath = `epub-reader-data/ai-dialog/${epubId}.json`;
-    const data = await readTextFile(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
-    return JSON.parse(data) as Message[];
+    //如果文件不存在，则返回null
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      const data = await readTextFile(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+      return JSON.parse(data) as Message[];
+    }
+    return null;
   } catch (error) {
     console.error("加载ai-dialog数据失败:", error);
     return null;
@@ -75,9 +81,9 @@ async function updateAiDialog(
 async function deleteAiDialog(epubId: string): Promise<void> {
   try {
     const filePath = `epub-reader-data/ai-dialog/${epubId}.json`;
-    await writeTextFile(filePath, "", {
-      baseDir: BaseDirectory.AppData,
-    });
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      await remove(filePath, { baseDir: BaseDirectory.AppData });
+    }
   } catch (error) {
     console.error("删除ai-dialog数据失败:", error);
   }

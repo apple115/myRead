@@ -139,10 +139,13 @@ async function saveEpubMetaData(
 async function loadEpubMetaData(epubId: string): Promise<EpubMetaData | null> {
   try {
     const filePath = `epub-reader-data/metadata/${epubId}.json`;
-    const data = await readTextFile(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
-    return JSON.parse(data) as EpubMetaData;
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      const data = await readTextFile(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+      return JSON.parse(data) as EpubMetaData;
+    }
+    return null;
   } catch (error) {
     console.error("Failed to load EPUB metadata:", error);
     return null;
@@ -184,9 +187,12 @@ async function getAllEpubMetaData(): Promise<EpubMetaData[]> {
 async function deleteEpubData(epubId: string): Promise<void> {
   try {
     const filePath = `epub-data/${epubId}.epub`;
-    await remove(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
+    // 检查文件是否存在
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      await remove(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+    }
   } catch (error) {
     console.error("Failed to delete EPUB data:", error);
     throw error;
@@ -197,9 +203,12 @@ async function deleteEpubData(epubId: string): Promise<void> {
 async function deleteEpubMetaData(epubId: string): Promise<void> {
   try {
     const filePath = `epub-reader-data/metadata/${epubId}.json`;
-    await remove(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
+    // 检查文件是否存在
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      await remove(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+    }
   } catch (error) {
     console.error("Failed to delete EPUB metadata:", error);
     throw error;

@@ -27,6 +27,10 @@ export default function AiBookDialog({
   //4 可以开始对话
   const [bookTitle, setBookTitle] = useState<string>("");
 
+  const [dialogs, setDialogs] = useState<Message[]>([]);
+
+  const [userInput, setUserInput] = useState("");
+
   const getMetaData = useCallback(async () => {
     try {
       if (bookId.length === 0) {
@@ -61,10 +65,6 @@ export default function AiBookDialog({
       console.error("fetchData", error);
     });
   }, [getMetaData, getAiDialog]);
-
-  const [dialogs, setDialogs] = useState<Message[]>([]);
-
-  const [userInput, setUserInput] = useState("");
 
   const handleUserInput = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

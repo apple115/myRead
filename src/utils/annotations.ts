@@ -4,6 +4,7 @@ import {
   readTextFile,
   remove,
   writeTextFile,
+  exists,
 } from "@tauri-apps/plugin-fs";
 import type { ITextSelection } from "../types/annotation";
 
@@ -51,10 +52,13 @@ async function loadAnnotations(epubId: string): Promise<ITextSelection[]> {
   await ensureAnnotationsDir();
   try {
     const filePath = `epub-reader-data/annotations/${epubId}.json`;
-    const data = await readTextFile(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
-    return JSON.parse(data) as ITextSelection[];
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      const data = await readTextFile(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+      return JSON.parse(data) as ITextSelection[];
+    }
+    return [];
   } catch (error) {
     console.error("Failed to load annotations:", error);
     return [];
@@ -65,9 +69,11 @@ async function loadAnnotations(epubId: string): Promise<ITextSelection[]> {
 async function deleteAnnotations(epubId: string): Promise<void> {
   try {
     const filePath = `epub-reader-data/annotations/${epubId}.json`;
-    await remove(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
+    // 检查文件是否存在
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      // 删除存在的文件
+      await remove(filePath, { baseDir: BaseDirectory.AppData });
+    }
   } catch (error) {
     console.error("Failed to delete annotations:", error);
     throw error;

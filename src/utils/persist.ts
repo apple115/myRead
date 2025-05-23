@@ -4,6 +4,7 @@ import {
   readTextFile,
   remove,
   writeTextFile,
+  exists,
 } from "@tauri-apps/plugin-fs";
 import _ from "lodash";
 
@@ -53,10 +54,14 @@ async function loadPersist(epubId: string): Promise<Persist | null> {
   await ensurePersistDir();
   try {
     const filePath = `epub-reader-data/persist/${epubId}.json`;
-    const data = await readTextFile(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
-    return JSON.parse(data) as Persist;
+    // 检查文件是否存在
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      const data = await readTextFile(filePath, {
+        baseDir: BaseDirectory.AppData,
+      });
+      return JSON.parse(data) as Persist;
+    }
+    return null
   } catch (error) {
     console.error("加载Persist失败", error);
     return null;
@@ -76,9 +81,11 @@ async function updatePersist(
 async function deletePersist(epubId: string): Promise<void> {
   try {
     const filePath = `epub-reader-data/persist/${epubId}.json`;
-    await remove(filePath, {
-      baseDir: BaseDirectory.AppData,
-    });
+    // 检查文件是否存在
+    if (await exists(filePath, { baseDir: BaseDirectory.AppData })) {
+      // 删除存在的文件
+      await remove(filePath, { baseDir: BaseDirectory.AppData });
+    }
   } catch (error) {
     console.error("删除Persist失败", error);
     throw error;

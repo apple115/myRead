@@ -1,6 +1,8 @@
 "use client";
 import BookCard from "@/app/library/components/BookCard";
 import { EpubUploader } from "@/app/library/components/EpubUploader";
+import { deleteAiDialog } from "@/utils/ai-dialog";
+import { deleteAnnotations } from "@/utils/annotations";
 import {
   type EpubMetaData,
   deleteEpubData,
@@ -8,6 +10,7 @@ import {
   deleteEpubMetaData,
   getAllEpubMetaData,
 } from "@/utils/epub";
+import { deletePersist } from "@/utils/persist";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -36,6 +39,7 @@ export default function LibraryPage() {
     const loadBooks = async () => {
       try {
         const data = await getAllEpubMetaData();
+        console.log("Epub内容",data)
         setBooks(data);
         setErrors((prev) => ({ ...prev, books: null }));
       } catch (error) {
@@ -63,9 +67,12 @@ export default function LibraryPage() {
 
   const handleDeleteBook = async (bookId: string) => {
     try {
-      await deleteEpubData(bookId);
-      await deleteEpubMetaData(bookId);
-      await deleteEpubImage(bookId);
+      await deleteEpubData(bookId); //删除epub文件
+      await deleteEpubMetaData(bookId); //删除元数据
+      await deleteEpubImage(bookId); //删除封面图片
+      await deleteAiDialog(bookId); //删除对话
+      await deleteAnnotations(bookId); //删除笔记
+      await deletePersist(bookId);//删除持久化数据
       setBooks((prevBooks) => prevBooks.filter((book) => book.hash !== bookId));
     } catch (error) {
       console.error("Failed to delete book:", error);
