@@ -178,7 +178,7 @@ export default function MindMapPage() {
       </div>
 
       {/* 思维导图区域 */}
-      <div className="flex w-full h-full">
+      <div className="flex w-full h-full ">
         <ReactFlow
           nodes={nodes}
           edges={edges}

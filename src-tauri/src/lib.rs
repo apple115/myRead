@@ -33,10 +33,12 @@ struct ImgFile {
   mime: String,
 }
 
+// 没有图片返回
 #[tauri::command]
 fn get_img(path: PathBuf) -> Result<ImgFile, String> {
   let mut doc = EpubDoc::new(&path).map_err(|e| e.to_string())?;
-  let cover_data = doc.get_cover().unwrap();
+  //如果没有封面图片，返回空
+    let cover_data = doc.get_cover().unwrap_or((Vec::new(),String::new()));
   Ok(ImgFile {
     data: cover_data.0,
     mime: cover_data.1,

@@ -39,7 +39,7 @@ export default function LibraryPage() {
     const loadBooks = async () => {
       try {
         const data = await getAllEpubMetaData();
-        console.log("Epub内容",data)
+        console.log("Epub内容", data);
         setBooks(data);
         setErrors((prev) => ({ ...prev, books: null }));
       } catch (error) {
@@ -72,7 +72,7 @@ export default function LibraryPage() {
       await deleteEpubImage(bookId); //删除封面图片
       await deleteAiDialog(bookId); //删除对话
       await deleteAnnotations(bookId); //删除笔记
-      await deletePersist(bookId);//删除持久化数据
+      await deletePersist(bookId); //删除持久化数据
       setBooks((prevBooks) => prevBooks.filter((book) => book.hash !== bookId));
     } catch (error) {
       console.error("Failed to delete book:", error);
@@ -118,7 +118,7 @@ export default function LibraryPage() {
                   />
                 ))
               ) : (
-                <div className="col-span-full text-center text-gray-500 py-8">
+                <div className="col-span-full text-center text-gray-500 py-8 py">
                   书架空空如也，快去添加书籍吧！
                 </div>
               )}

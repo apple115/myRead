@@ -21,7 +21,10 @@
 ![效果展示图](./images/6.png)
 
 
-##TODO
+## TODO
 
 - [ ] TODO 支持其他格式
 - [ ] TODO 优化这个阅读
+- [ ] TODO i18n的支持
+- [ ] TODO 主题切换
+- [ ] TODO 字体选择

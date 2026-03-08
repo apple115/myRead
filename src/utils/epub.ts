@@ -234,7 +234,10 @@ async function saveEpubImage(epubId: string): Promise<void> {
     const epubImg = await invoke<ImgFile>("get_img", {
       path: path,
     });
-    console.log("epubImg:", epubImg);
+    // 如果没有数据，则返回
+    if(epubImg.data.length === 0) {
+      return
+    }
     const ext = MIME_TO_EXT[epubImg.mime.toLowerCase()] || DEFAULT_EXT;
     const filePath = `epub-reader-data/covers/${epubId}.${ext}`;
     await writeFile(filePath, new Uint8Array(epubImg.data), {
