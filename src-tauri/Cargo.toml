@@ -24,10 +24,10 @@ tauri = { version = "2", features = [ "protocol-asset", "devtools"] }
 tauri-plugin-opener = "2"
 tauri-plugin-fs = "2"
 epub = "2.1.2"
-sha2 = "0.10"
+sha2 = "0.11"
 tokio = "1.44.1"
 reqwest = { version = "0.11", features = ["json"] }
-async-openai = "0.28.0"
+async-openai = "0.35.0"
 tauri-plugin-http = "2"
 
 [features]
